@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Сердцевина — прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Mono&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --kraft:#d8c39d; --kraft-dark:#c4ab80; --paper:#f1e7d1; --ink:#2f2a24; --soft:#6f5f4a;
+  --moss:#5f7a3c; --amber:#a8602a; --rose:#a9533f; --soil:#231b14; --glow:#e9d58a; --sky:#5f7488;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#1b1712;font-family:"PT Serif",Georgia,serif;color:var(--ink);
+  display:flex;justify-content:center;align-items:center;min-height:100vh}
+.phone{width:390px;height:820px;max-height:100vh;border-radius:38px;overflow:hidden;position:relative;
+  box-shadow:0 30px 90px #000a,0 0 0 10px #0f0c09;display:flex;flex-direction:column;
+  background-color:var(--kraft);
+  background-image:
+    repeating-linear-gradient(87deg,#0000 0 3px,#b9a07614 3px 4px,#0000 4px 11px),
+    radial-gradient(#a98d6022 1px,transparent 1.4px);
+  background-size:auto,7px 7px}
+@media (max-width:440px){.phone{width:100vw;height:100vh;max-height:none;border-radius:0;box-shadow:none}}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 18px 8px}
+.logo{font:700 18px "PT Serif";letter-spacing:.5px}
+.logo small{font:400 11px "PT Mono";color:var(--soft);letter-spacing:1px;margin-left:6px}
+.dist{font:12px "PT Mono";border:1.5px solid var(--ink);border-radius:4px;padding:3px 7px;cursor:pointer;transform:rotate(-2deg);
+  background:#f1e7d1aa}
+.dist.far{color:var(--rose);border-color:var(--rose)}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;display:none;position:relative;padding-bottom:16px}
+.screen.on{display:block}
+nav{display:flex;background:#3a3027;padding:8px 6px calc(10px + env(safe-area-inset-bottom));gap:4px}
+nav button{flex:1;background:none;border:0;color:#e6d6b8;font:12px "PT Mono";padding:6px 0;border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:.6}
+nav button.on{background:#54463a;opacity:1}
+nav svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+h2{font:700 22px "PT Serif";margin:10px 20px 2px}
+h3{font:700 15px "PT Serif";margin:0 0 6px}
+.hand{font-family:Caveat,cursive}
+.mono{font-family:"PT Mono",monospace}
+.sub{margin:0 20px 12px;color:var(--soft);font-size:13px;line-height:1.5}
+.card{margin:0 14px 14px;background:var(--paper);padding:14px 16px;position:relative;
+  box-shadow:0 1px 0 #0001,0 6px 14px -8px #0006;border-radius:2px}
+.card.tape::before{content:"";position:absolute;top:-9px;left:50%;width:74px;height:18px;margin-left:-37px;
+  background:#e8dcb6cc;transform:rotate(-3deg);box-shadow:0 1px 2px #0002}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--ink);cursor:pointer;
+  font:700 14px "PT Serif";color:var(--paper);background:var(--ink);padding:11px 16px;border-radius:3px}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.small{padding:7px 11px;font-size:12px}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.row{display:flex;gap:10px;align-items:center}
+.stamp{display:inline-block;font:11px "PT Mono";letter-spacing:1px;text-transform:uppercase;border:1.5px solid currentColor;
+  padding:2px 6px;border-radius:3px;transform:rotate(-3deg);color:var(--amber)}
+.say{font:600 21px/1.25 Caveat;color:#3d342b;margin-top:8px}
+.say::before{content:"— "}
+.muted{color:var(--soft);font-size:12px}
+
+/* grove */
+#map{display:block;width:calc(100% - 28px);margin:0 14px 10px;height:300px;border-radius:3px;cursor:pointer;
+  box-shadow:0 6px 14px -8px #0008}
+.maptools{display:flex;justify-content:space-between;align-items:center;margin:0 14px 12px}
+.toggle{display:flex;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden}
+.toggle button{background:transparent;border:0;font:12px "PT Mono";padding:6px 10px;cursor:pointer;color:var(--ink)}
+.toggle button.on{background:var(--ink);color:var(--paper)}
+.call{display:flex;gap:12px;align-items:flex-start}
+.call .env{flex:none;width:42px;height:30px;border:1.5px solid var(--ink);position:relative;margin-top:3px;background:#efe2c4}
+.call .env::after{content:"";position:absolute;left:0;right:0;top:0;height:16px;border-bottom:1.5px solid var(--ink);
+  clip-path:polygon(0 0,100% 0,50% 100%);background:var(--ink);opacity:.15}
+.treerow{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed #b59d78;cursor:pointer}
+.treerow:last-child{border-bottom:0}
+.treerow canvas{flex:none;width:52px;height:60px}
+.treerow .nm{font-weight:700;font-size:16px}
+.mossy{color:var(--moss);font-size:12px}
+
+/* tree */
+.head{display:flex;gap:14px;align-items:flex-end;margin:4px 16px 12px}
+.portrait{flex:none;width:130px;height:150px;background:var(--paper);padding:6px;box-shadow:0 6px 14px -8px #0008;transform:rotate(-1.5deg);position:relative}
+.portrait canvas,.portrait img{width:100%;height:100%;display:block;object-fit:cover}
+.portrait.moss::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 0 100%,#5f7a3caa 0 18px,#0000 34px),radial-gradient(circle at 100% 0,#5f7a3c88 0 10px,#0000 24px)}
+.head .meta{flex:1;min-width:0}
+.head .nm{font:700 26px/1.05 "PT Serif"}
+.facts{font:12px/1.7 "PT Mono";color:var(--soft);margin-top:6px}
+.level{margin-top:6px}
+.bar{height:6px;background:#0001;border:1px solid var(--ink);margin-top:4px}
+.bar i{display:block;height:100%;background:var(--moss)}
+#rings{display:block;width:100%;aspect-ratio:1;cursor:crosshair;touch-action:manipulation}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font:11px "PT Mono";color:var(--soft);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:4px}
+.mem{min-height:60px}
+.mem .d{font:12px "PT Mono";color:var(--soft)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.stats b{display:block;font:700 22px "PT Serif"}
+.stats span{font:10px "PT Mono";color:var(--soft)}
+
+/* meet */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 14px 14px}
+.act{background:var(--paper);padding:12px;cursor:pointer;box-shadow:0 6px 14px -9px #0008;border-radius:2px;position:relative}
+.act svg{width:34px;height:34px;stroke:var(--ink);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.act b{display:block;font-size:15px;margin-top:4px}
+.act span{font-size:11.5px;color:var(--soft);line-height:1.35;display:block;margin-top:2px}
+.act.off{opacity:.45}
+.act.wide{grid-column:span 2;display:flex;gap:12px;align-items:center}
+
+/* book */
+.tabs{display:flex;gap:6px;margin:0 14px 12px;flex-wrap:wrap}
+.tabs button{background:transparent;border:1.5px solid var(--ink);font:12px "PT Mono";padding:5px 10px;border-radius:3px;cursor:pointer}
+.tabs button.on{background:var(--ink);color:var(--paper)}
+.herb{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 14px 14px}
+.leafcard{background:var(--paper);padding:12px 8px 8px;text-align:center;position:relative;box-shadow:0 6px 14px -9px #0008}
+.leafcard::before{content:"";position:absolute;top:44%;left:-6px;right:-6px;height:14px;background:#e8dcb6bb;transform:rotate(-8deg)}
+.leafcard svg{width:70%;height:110px;position:relative}
+.leafcard .cap{font:600 16px/1.1 Caveat;color:#4a3f33;margin-top:2px}
+.rubgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 14px 14px}
+.rubgrid figure{background:var(--paper);padding:8px;box-shadow:0 6px 14px -9px #0008}
+.rubgrid img{width:100%;aspect-ratio:1;display:block}
+.rubgrid figcaption{font:600 15px Caveat;text-align:center;margin-top:4px}
+.voice{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed #b59d78}
+.voice button{flex:none;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;cursor:pointer;font-size:13px}
+.voice canvas{flex:1;height:28px;min-width:0}
+
+/* new */
+.steps{display:flex;gap:6px;margin:0 20px 12px}
+.steps i{flex:1;height:3px;background:#0002}
+.steps i.on{background:var(--ink)}
+.photo{display:block;width:calc(100% - 28px);margin:0 14px 12px;height:300px;background:var(--paper);cursor:pointer;
+  box-shadow:0 6px 14px -9px #0008;position:relative;overflow:hidden}
+.photo canvas{width:100%;height:100%;display:block}
+.photo .hint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  font:600 24px Caveat;color:var(--soft);text-align:center;padding:30px}
+.key{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 14px 14px}
+.key div{background:var(--paper);padding:10px;cursor:pointer;border:2px solid transparent;text-align:center;box-shadow:0 6px 14px -9px #0008}
+.key div.on{border-color:var(--ink)}
+.key svg{height:62px;width:100%}
+.key b{display:block}
+.key span{font-size:11px;color:var(--soft)}
+input[type=text],textarea{width:100%;font:16px "PT Serif";padding:9px 10px;border:1.5px solid var(--ink);background:#fbf6ea;border-radius:2px;color:var(--ink)}
+textarea{font:600 20px/1.25 Caveat;min-height:110px;resize:none}
+input[type=range]{width:100%;accent-color:var(--ink)}
+label.f{display:block;font:12px "PT Mono";color:var(--soft);margin:10px 0 4px}
+#miniMap{display:block;width:100%;height:190px;cursor:crosshair}
+
+/* overlay */
+.overlay{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;background-color:var(--kraft);
+  background-image:repeating-linear-gradient(87deg,#0000 0 3px,#b9a07614 3px 4px,#0000 4px 11px)}
+.overlay.on{display:flex}
+.overlay.dark{background:#15110d;color:#e6d6b8}
+.ovhead{display:flex;justify-content:space-between;align-items:center;padding:18px 18px 6px}
+.ovhead b{font:700 19px "PT Serif"}
+.x{background:none;border:0;font:26px/1 "PT Serif";cursor:pointer;color:inherit;padding:0 4px}
+.ovbody{flex:1;overflow-y:auto;padding:0 0 20px;display:flex;flex-direction:column}
+.center{text-align:center}
+.heart{width:210px;height:210px;border-radius:50%;margin:18px auto 10px;position:relative;cursor:pointer;user-select:none;touch-action:none;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  background:radial-gradient(circle,#f1e7d1 0 55%,#e2cfa9 56% 100%);box-shadow:0 0 0 2px var(--ink),0 10px 30px -10px #0008}
+.heart .ring{position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--rose);opacity:0}
+.heart.b .ring{animation:beat .9s ease-out}
+.heart.b .core{animation:thump .35s ease-out}
+.heart .core{font:700 44px "PT Serif"}
+.heart .unit{font:11px "PT Mono";color:var(--soft)}
+@keyframes beat{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+@keyframes thump{0%{transform:scale(1.12)}100%{transform:scale(1)}}
+.prog{height:4px;background:#0002;margin:6px 40px}
+.prog i{display:block;height:100%;width:0;background:var(--rose)}
+#scope{width:calc(100% - 40px);height:120px;margin:14px 20px;display:block}
+#rub{display:block;width:calc(100% - 40px);margin:6px 20px;aspect-ratio:1;background:var(--paper);touch-action:none;cursor:crosshair;
+  box-shadow:0 6px 14px -9px #0008}
+#sitCv{position:absolute;inset:0;width:100%;height:100%}
+.sitTxt{position:relative;margin:auto;text-align:center}
+.sitTxt .t{font:400 54px "PT Mono";letter-spacing:2px}
+#chron{display:block;width:calc(100% - 40px);height:330px;margin:6px 20px;background:var(--paper);box-shadow:0 6px 14px -9px #0008}
+.note{background:#f6eedb;margin:10px 20px;padding:18px;font:600 22px/1.3 Caveat;box-shadow:0 8px 18px -10px #0008;transform:rotate(-1deg)}
+.toast{position:absolute;left:50%;bottom:86px;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);
+  padding:10px 14px;font:13px "PT Serif";border-radius:3px;opacity:0;transition:.3s;z-index:40;pointer-events:none;width:max-content;max-width:330px;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.pad{padding:0 20px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="top">
+    <span class="logo">Сердцевина<small>HEARTWOOD</small></span>
+    <span class="dist" id="dist" title="Демо: нажмите, чтобы оказаться далеко от дерева">у дерева · 12 м</span>
+  </div>
+
+  <section class="screen on" id="s-grove">
+    <h2>Моя роща</h2>
+    <p class="sub">Деревья, с которыми вы дружите. Под землёй их связывает грибница: навестите одно, и остальные узнают.</p>
+    <canvas id="map"></canvas>
+    <div class="maptools">
+      <div class="toggle"><button class="on" data-u="0">На земле</button><button data-u="1">Под землёй</button></div>
+      <span class="muted mono" id="groveCount"></span>
+    </div>
+    <div class="card tape call" id="call"></div>
+    <div class="card" id="treeList"></div>
+    <div class="pad"><button class="btn ghost" id="addTree" style="width:100%">+ подружиться с новым деревом</button></div>
+  </section>
+
+  <section class="screen" id="s-tree">
+    <div class="head">
+      <div class="portrait" id="portrait"></div>
+      <div class="meta">
+        <span class="stamp" id="tLevel"></span>
+        <div class="nm" id="tName"></div>
+        <div class="facts" id="tFacts"></div>
+        <div class="bar"><i id="tBar"></i></div>
+      </div>
+    </div>
+    <div class="card"><div class="say" id="tSay" style="margin:0"></div></div>
+    <div class="card">
+      <h3>Спил дружбы</h3>
+      <p class="muted" style="margin-bottom:6px">Каждая встреча — кольцо. Сердцевина в центре — день знакомства. Нажмите на кольцо.</p>
+      <canvas id="rings"></canvas>
+      <div class="legend">
+        <span><i style="background:#7f9a55"></i>весна</span><span><i style="background:#5f7d3c"></i>лето</span>
+        <span><i style="background:#a8602a"></i>осень</span><span><i style="background:#5f7488"></i>зима</span>
+        <span><i style="background:#e7b9a0;height:8px"></i>объятие</span><span><i style="background:#2f2a24"></i>долгая разлука</span>
+      </div>
+    </div>
+    <div class="card mem" id="mem"></div>
+    <div class="card"><div class="stats" id="tStats"></div></div>
+    <div class="pad row"><button class="btn ghost small" id="giveTree">Передать дерево другу</button></div>
+  </section>
+
+  <section class="screen" id="s-meet">
+    <h2 id="mTitle"></h2>
+    <p class="sub" id="mSub"></p>
+    <div id="hollow"></div>
+    <div class="actions" id="actions"></div>
+  </section>
+
+  <section class="screen" id="s-book">
+    <h2>Тетрадь лесника</h2>
+    <p class="sub">Всё, что деревья вам отдали.</p>
+    <div class="tabs" id="bookTabs">
+      <button class="on" data-t="herb">Гербарий</button><button data-t="rub">Оттиски</button>
+      <button data-t="voice">Голоса</button><button data-t="note">Тайники</button>
+    </div>
+    <div id="bookBody"></div>
+  </section>
+
+  <section class="screen" id="s-new">
+    <h2>Знакомство</h2>
+    <p class="sub" id="newSub"></p>
+    <div class="steps" id="newSteps"><i></i><i></i><i></i><i></i></div>
+    <div id="newBody"></div>
+  </section>
+
+  <div class="overlay" id="ov"><div class="ovhead"><b id="ovTitle"></b><button class="x" id="ovX">×</button></div><div class="ovbody" id="ovBody"></div></div>
+  <div class="toast" id="toast"></div>
+
+  <nav id="nav">
+    <button class="on" data-s="grove"><svg viewBox="0 0 24 24"><circle cx="7" cy="9" r="4"/><circle cx="16" cy="7" r="4.5"/><path d="M7 13v8M16 11.5V21M3 21h18"/></svg>Роща</button>
+    <button data-s="tree"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r=".6"/></svg>Дерево</button>
+    <button data-s="meet"><svg viewBox="0 0 24 24"><path d="M12 21V8M12 8c-3-1-6-3-6-6M12 11c3-1 6-3 6-6"/><path d="M5 15c2 3 4 4 7 4s5-1 7-4"/></svg>Встреча</button>
+    <button data-s="book"><svg viewBox="0 0 24 24"><path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-5a2 2 0 0 0-2 2"/><path d="M20 4v14h-5a2 2 0 0 0-2 2"/></svg>Тетрадь</button>
+  </nav>
+</div>
+
+<script>
+/* ---------- basics ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const INK='#2f2a24';
+const TODAY=new Date('2026-10-22T12:00:00');
+const MON=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+const fmt=d=>d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear();
+const seasonOf=d=>{const m=d.getMonth();return m<2||m==11?'winter':m<5?'spring':m<8?'summer':'autumn'};
+const SEASON_RU={winter:'зима',spring:'весна',summer:'лето',autumn:'осень'};
+const plural=(n,f)=>{n=Math.abs(n)%100;const a=n%10;return n>10&&n<20?f[2]:a>1&&a<5?f[1]:a==1?f[0]:f[2]};
+const daysAgo=d=>Math.round((TODAY-d)/864e5);
+function rng(seed){let s=(seed*2654435761)>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+function fitCanvas(cv,h){const dpr=devicePixelRatio||1,r=cv.getBoundingClientRect(),W=r.width,H=h||r.height;
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);return [c,W,H]}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)}
+
+/* ---------- species ---------- */
+const SPECIES={
+  oak:{name:'Дуб',g:'m',k:5,hint:'лист с лопастями, жёлуди',char:'немногословный, мудрый',
+    lines:['Я не тороплюсь. И ты не торопись.','Двести лет — много встреч. Наша мне нравится.','С южной стороны кора теплее. Положи ладонь.','Ветер был сильный ночью. Я выстоял. Как обычно.']},
+  birch:{name:'Берёза',g:'f',k:5,hint:'белая кора с чёрными штрихами',char:'болтливая, светлая',
+    lines:['Наконец-то! Я тут столько всего видела!','Сорока опять сидела на третьей ветке, представляешь?','Весной у меня сладкий сок. Это секрет.','А у соседнего тополя новое дупло. Только тсс.']},
+  maple:{name:'Клён',g:'m',k:4.5,hint:'лист-ладонь, семена-вертолётики',char:'яркий, нетерпеливый',
+    lines:['Я весь красный. Через неделю облечу — успей.','Мои семена — вертолётики. Лови.','Осенью я самый громкий в квартале. Цветом.']},
+  linden:{name:'Липа',g:'f',k:3,hint:'лист-сердечко, пахнет мёдом',char:'тёплая, медовая',
+    lines:['В июле я пахну мёдом. Пчёлы знают.','Садись. Тень у меня мягкая.']},
+  pine:{name:'Сосна',g:'f',k:3.5,hint:'длинная хвоя по две',char:'молчаливая, надёжная',
+    lines:['…','Пахну смолой. Это вместо слов.','Я зелёная и зимой. На меня можно положиться.']},
+  willow:{name:'Ива',g:'f',k:2.5,hint:'узкие листья, ветви до земли',char:'задумчивая, у воды',
+    lines:['Я смотрю в воду. Там тоже я.','Мне не грустно. Мне задумчиво.']}
+};
+const ageOf=(girth,k)=>Math.round(girth/Math.PI/2.54*k);
+const LEVELS=[[0,'Незнакомец'],[3,'Знакомый'],[10,'Приятель'],[25,'Друг'],[50,'Побратим']];
+function levelOf(n){let i=0;while(i<LEVELS.length-1&&n>=LEVELS[i+1][0])i++;
+  const next=LEVELS[i+1];return {name:LEVELS[i][1],p:next?(n-LEVELS[i][0])/(next[0]-LEVELS[i][0]):1,next:next&&next[1],left:next&&next[0]-n}}
+
+/* ---------- demo data ---------- */
+const WEATHER={
+  winter:[['снег',-6,-1],['мороз, ясно',-14,-6],['оттепель',0,3],['метель',-8,-3]],
+  spring:[['ясно',6,16],['ливень',4,12],['ветрено',5,12],['туман',3,9]],
+  summer:[['жара',24,31],['ясно',18,25],['гроза',17,23],['тёплый дождь',16,21]],
+  autumn:[['листопад',6,13],['ливень',4,10],['туман',2,8],['ясно',5,14],['первый иней',-2,2]]};
+const KINDS=[['visit',30],['hug',24],['listen',9],['sit',15],['leaf',9],['rub',6]];
+const KIND_RU={meet:'знакомство',visit:'встреча',hug:'объятие',listen:'голос',sit:'посидели',leaf:'лист',rub:'оттиск',photo:'снимок'};
+function weatherFor(d,r){const s=seasonOf(d),w=WEATHER[s][Math.floor(r()*WEATHER[s].length)];return {w:w[0],t:Math.round(w[1]+r()*(w[2]-w[1]))}}
+function mkVisit(d,kind,r){const v={d,kind,...weatherFor(d,r),seed:Math.floor(r()*1e6)};
+  if(kind=='hug'){v.dur=40+Math.floor(r()*60);v.bpm=22+Math.floor(r()*10)}
+  if(kind=='sit')v.min=5+Math.floor(r()*25);
+  return v}
+function genVisits(seed,a,b,n){const r=rng(seed),s=+new Date(a),e=+new Date(b),out=[];
+  const tot=KINDS.reduce((x,k)=>x+k[1],0);
+  for(let i=0;i<n-2;i++){const d=new Date(s+(e-s)*r());let x=r()*tot,kind='visit';
+    for(const k of KINDS){if((x-=k[1])<0){kind=k[0];break}}
+    if(kind=='leaf'&&seasonOf(d)=='winter')kind='visit';
+    out.push(mkVisit(d,kind,r))}
+  out.push(mkVisit(new Date(e),'hug',r));
+  out.sort((p,q)=>p.d-q.d);const seen=new Set();for(const v of out)if(v.kind=='leaf'){const k=v.d.getFullYear()+seasonOf(v.d);if(seen.has(k))v.kind='visit';else seen.add(k)}out.unshift(mkVisit(new Date(s),'meet',r));return out}
+
+let trees=[
+  {id:1,name:'Старик',sp:'oak',girth:310,seed:11,pos:{x:.28,y:.38},visits:genVisits(11,'2025-05-02','2026-10-19',46),
+    why:'стоит у школы, под ним я читал в детстве',
+    hollow:{left:new Date('2025-10-22'),open:new Date('2026-10-22'),text:'Привет из прошлого октября. Если ты это читаешь — ты не забросил(а) нас. Скажи ему, что жёлудей в этом году много.'}},
+  {id:2,name:'Болтушка',sp:'birch',girth:118,seed:23,pos:{x:.7,y:.27},visits:genVisits(23,'2025-08-10','2026-09-11',18),why:'у остановки, всегда шелестит'},
+  {id:3,name:'Огонёк',sp:'maple',girth:165,seed:37,pos:{x:.56,y:.72},visits:genVisits(37,'2026-06-14','2026-10-16',8),why:'самый красный во дворе'}
+];
+let cur=trees[0];
+let near=true;
+const book={rubs:[],notes:[]};
+
+/* ---------- tree drawing (engraving style) ---------- */
+const TP={
+  oak:{d:7,ratio:.72,spread:.62,jit:.55,trunk:.26,w:.062,wob:.4,grav:0},
+  maple:{d:7,ratio:.75,spread:.5,jit:.35,trunk:.28,w:.048,wob:.15,grav:0},
+  linden:{d:7,ratio:.77,spread:.38,jit:.3,trunk:.3,w:.048,wob:.1,grav:0},
+  birch:{d:7,ratio:.79,spread:.3,jit:.28,trunk:.33,w:.032,wob:.12,grav:.14},
+  willow:{d:5,ratio:.72,spread:.65,jit:.4,trunk:.26,w:.06,wob:.25,grav:0}};
+const AUTUMN={oak:['#9a6b33','#8a6a35','#b3843f'],birch:['#d9b13f','#e6c65c','#c9a136'],maple:['#c8452f','#d9682f','#e08a3a'],
+  linden:['#d4a63a','#c09440'],willow:['#b8b05a','#a7a24e'],pine:['#4f6b3a','#5e7a44']};
+function leafCols(sp,season){if(sp=='pine')return ['#3f5a32','#4f6b3a','#5c7a46'];
+  return season=='spring'?['#a8c27a','#bcd38e','#93b366']:season=='summer'?['#5e7f3c','#77984f','#4c6a33']:AUTUMN[sp]}
+function drawTree(c,W,H,sp,season,seed,o={}){
+  const r=rng(seed),U=Math.min(W*.95,H*.82),segs=[],ends=[];
+  c.save();c.translate(W/2+(o.dx||0),H*.9+(o.dy||0));if(o.sc)c.scale(o.sc,o.sc);
+  c.lineCap='round';c.lineJoin='round';
+  // ground
+  c.strokeStyle=INK;c.lineWidth=1;c.beginPath();
+  for(let x=-W*.42;x<=W*.42;x+=4){const y=Math.sin(x*.05+seed)*1.2;x==-W*.42?c.moveTo(x,y):c.lineTo(x,y)}c.stroke();
+  c.lineWidth=.7;for(let i=0;i<26;i++){const x=(r()-.5)*W*.8;c.beginPath();c.moveTo(x,0);c.lineTo(x+(r()-.5)*3,-2-r()*4);c.stroke()}
+  if(sp=='pine'){
+    const h=U*.98;let y=0,w=U*.042;
+    for(let i=0;i<8;i++){const y2=-h*(i+1)/8;segs.push({x:(r()-.5)*1.5,y,x2:(r()-.5)*1.5,y2,w,cx:0,cy:(y+y2)/2});y=y2;w*=.82}
+    for(let y=-h*.36;y>-h*.98;y-=h*(.045+r()*.03)){const k=-y/h,len=U*(.36*(1-k)+.05)*(.75+r()*.5);
+      for(const side of [-1,1]){const a=side>0?.12+r()*.25:Math.PI-.12-r()*.25,x2=Math.cos(a)*len,y2=y+Math.sin(a)*len;
+        segs.push({x:0,y,x2,y2,w:Math.max(.6,U*.008*(1-k)),cx:x2*.5,cy:y+(y2-y)*.3-len*.08});
+        for(let t=.35;t<=1;t+=.22)ends.push({x:x2*t,y:y+(y2-y)*t-2});}}
+  }else{
+    const P=TP[sp];
+    const br=(x,y,len,a,w,d)=>{const x2=x+Math.cos(a)*len,y2=y+Math.sin(a)*len,b=(r()-.5)*P.wob*len;
+      segs.push({x,y,x2,y2,w,cx:(x+x2)/2-Math.sin(a)*b,cy:(y+y2)/2+Math.cos(a)*b});
+      if(d==0){ends.push({x:x2,y:y2});return}
+      const n=r()<.35?3:2;
+      for(let i=0;i<n;i++){let na=a+(i/(n-1)-.5)*2*P.spread+(r()-.5)*P.jit;
+        if(P.grav&&d<4)na+=P.grav*Math.sign(Math.cos(na))*(4-d);
+        br(x2,y2,len*P.ratio*(.85+r()*.3),na,w*.66,d-1)}};
+    br(0,0,U*P.trunk,-Math.PI/2+(r()-.5)*.08,U*P.w,P.d);
+    if(sp=='willow'){const hang=[...ends];ends.length=0;
+      for(const e of hang){const L=U*(.2+r()*.3),dir=e.x>0?1:-1;
+        const x2=e.x+dir*L*.18,y2=Math.min(-2,e.y+L);segs.push({x:e.x,y:e.y,x2,y2,w:.6,cx:e.x+dir*L*.22,cy:e.y+L*.15});
+        for(let t=.15;t<=1;t+=.17){const u=1-t;ends.push({x:u*u*e.x+2*u*t*(e.x+dir*L*.22)+t*t*x2,y:u*u*e.y+2*u*t*(e.y+L*.15)+t*t*y2,small:1})}}}
+  }
+  // branches
+  c.strokeStyle=INK;
+  for(const s of segs){c.lineWidth=Math.max(.5,s.w);c.beginPath();c.moveTo(s.x,s.y);c.quadraticCurveTo(s.cx,s.cy,s.x2,s.y2);c.stroke()}
+  if(sp=='birch')for(const s of segs){if(s.w<2.2)continue;c.strokeStyle='#f4efe6';c.lineWidth=s.w*.62;c.beginPath();c.moveTo(s.x,s.y);c.quadraticCurveTo(s.cx,s.cy,s.x2,s.y2);c.stroke();
+    c.strokeStyle=INK;c.lineWidth=1.2;const n=Math.floor(Math.hypot(s.x2-s.x,s.y2-s.y)/5);
+    for(let i=0;i<n;i++){if(r()<.5)continue;const t=r(),x=s.x+(s.x2-s.x)*t,y=s.y+(s.y2-s.y)*t,a=Math.atan2(s.y2-s.y,s.x2-s.x)+Math.PI/2,l=s.w*.3*(.3+r()*.7);
+      c.beginPath();c.moveTo(x-Math.cos(a)*l*.2,y-Math.sin(a)*l*.2);c.lineTo(x+Math.cos(a)*l,y+Math.sin(a)*l);c.stroke()}}
+  // trunk hatching
+  if(sp!='birch'){const t=segs[0];c.lineWidth=.6;c.strokeStyle='#f1e7d1aa';
+    for(let i=0;i<14;i++){const y=t.y+(t.y2-t.y)*(i/14);c.beginPath();c.moveTo(t.w*.05,y);c.lineTo(t.w*.38,y-2);c.stroke()}}
+  // foliage
+  if(season!='winter'||sp=='pine'){const cols=leafCols(sp,season),n=season=='summer'?5:season=='spring'?3:4;
+    const rad=U*(sp=='pine'?.026:season=='spring'?.02:.028);
+    c.globalAlpha=sp=='pine'?.55:.42;
+    for(const e of ends){const rr=e.small?rad*.5:rad;for(let k=0;k<n;k++){c.fillStyle=cols[k%cols.length];c.beginPath();
+      c.arc(e.x+(r()-.5)*rr*2.4,e.y+(r()-.5)*rr*2.4,rr*(.5+r()*.6),0,7);c.fill()}}
+    c.globalAlpha=1;c.fillStyle=INK;for(const e of ends){if(r()<.45){c.beginPath();c.arc(e.x+(r()-.5)*rad*2,e.y+(r()-.5)*rad*2,.7,0,7);c.fill()}}
+    if(season=='autumn'&&sp!='pine'){for(let i=0;i<34;i++){c.fillStyle=cols[i%cols.length];c.beginPath();
+      c.ellipse((r()-.5)*W*.7,-1-r()*3,2.2,1.2,r()*3,0,7);c.fill()}}}
+  if(season=='winter'){c.strokeStyle='#fbf8f1';for(const s of segs){if(s.w<1.1)continue;const a=Math.abs(Math.atan2(s.y2-s.y,s.x2-s.x));
+      if(a>1.2&&a<1.95)continue;c.lineWidth=Math.max(1.2,s.w*.5);c.beginPath();c.moveTo(s.x,s.y-s.w*.45);c.quadraticCurveTo(s.cx,s.cy-s.w*.45,s.x2,s.y2-s.w*.45);c.stroke()}
+    c.fillStyle='#fbf8f1';c.beginPath();c.ellipse(0,0,W*.42,5,0,Math.PI,0);c.fill()}
+  c.restore()}
+
+/* ---------- photo → engraving ---------- */
+function engrave(img,cv){const [c,W,H]=fitCanvas(cv);const S=4,cols=Math.ceil(W/S),rows=Math.ceil(H/S);
+  const o=document.createElement('canvas');o.width=cols;o.height=rows;const oc=o.getContext('2d');
+  const k=Math.max(cols/img.width,rows/img.height),iw=img.width*k,ih=img.height*k;oc.drawImage(img,(cols-iw)/2,(rows-ih)/2,iw,ih);
+  const d=oc.getImageData(0,0,cols,rows).data,b=[];let lo=1,hi=0;
+  for(let i=0;i<cols*rows;i++){const v=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)/255;b.push(v);lo=Math.min(lo,v);hi=Math.max(hi,v)}
+  c.fillStyle='#f1e7d1';c.fillRect(0,0,W,H);c.strokeStyle=INK;c.lineCap='round';
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const v=(b[y*cols+x]-lo)/(hi-lo||1),dk=1-v,X=x*S,Y=y*S;
+    if(dk>.22){c.lineWidth=dk*1.9;c.beginPath();c.moveTo(X,Y+S);c.lineTo(X+S,Y);c.stroke()}
+    if(dk>.55){c.lineWidth=(dk-.4)*1.6;c.beginPath();c.moveTo(X,Y);c.lineTo(X+S,Y+S);c.stroke()}
+    if(dk>.82){c.lineWidth=1;c.beginPath();c.moveTo(X,Y+S/2);c.lineTo(X+S,Y+S/2);c.stroke()}}
+  return cv.toDataURL('image/jpeg',.85)}
+
+/* ---------- rings ---------- */
+const KW={meet:1.4,visit:1,hug:1.7,listen:1.1,sit:1.5,leaf:1.1,rub:1.1,photo:1.1};
+const SC={spring:'#7f9a55',summer:'#5f7d3c',autumn:'#a8602a',winter:'#5f7488'};
+const shape=(t,s)=>.035*Math.sin(3*t+s)+.026*Math.sin(5*t+s*1.7)+.018*Math.sin(2*t+s*.3)+.01*Math.sin(9*t+s*2.1);
+function drawRings(cv,tree,hi){const [c,W]=fitCanvas(cv,cv.getBoundingClientRect().width);
+  const cx=W/2,cy=W/2,R=W/2-6,v=tree.visits,r=rng(tree.seed);
+  const widths=v.map(x=>KW[x.kind]||1),tot=widths.reduce((a,b)=>a+b,0),r0=R*.06,outer=R*.88;
+  const radii=[];let acc=r0;for(const w of widths){acc+=w/tot*(outer-r0);radii.push(acc)}
+  tree._g={cx,cy,R,r0,radii};
+  const path=rad=>{c.beginPath();for(let i=0;i<=160;i++){const t=i/160*Math.PI*2,rr=rad*(1+shape(t,tree.seed)*Math.min(1,rad/R*1.6));
+    const x=cx+Math.cos(t)*rr,y=cy+Math.sin(t)*rr;i?c.lineTo(x,y):c.moveTo(x,y)}c.closePath()};
+  path(R);c.fillStyle='#4a3626';c.fill();
+  c.save();path(R);c.clip();c.lineCap='round';
+  for(let i=0;i<420;i++){const t=r()*Math.PI*2,a=R*(.89+r()*.1),b=a+R*(.02+r()*.04);c.strokeStyle=r()<.5?'#2c2017':'#6b5039';c.lineWidth=1+r()*2;
+    c.beginPath();c.moveTo(cx+Math.cos(t)*a,cy+Math.sin(t)*a);c.lineTo(cx+Math.cos(t+.01)*b,cy+Math.sin(t+.01)*b);c.stroke()}c.restore();
+  path(outer+R*.012);c.fillStyle='#c79b62';c.fill();
+  for(let i=v.length-1;i>=0;i--){const x=v[i];path(radii[i]);
+    c.fillStyle=x.kind=='hug'?`hsl(18,52%,${75+r()*4}%)`:`hsl(37,${44+r()*8}%,${73+r()*6}%)`;c.fill();
+    c.strokeStyle=SC[seasonOf(x.d)];c.lineWidth=1.3;c.stroke();
+    if(i>0&&(x.d-v[i-1].d)/864e5>30){path(radii[i-1]+ (radii[i]-radii[i-1])*.5);c.strokeStyle='#2f2a24';c.lineWidth=1.1;c.stroke()}}
+  if(hi!=null&&hi>=0){path(radii[hi]);c.strokeStyle='#a9533f';c.lineWidth=3;c.stroke()}
+  path(r0);c.fillStyle=hi==-1?'#a9533f':'#7a4f2d';c.fill();
+  // radial check (crack)
+  c.strokeStyle='#3b2a1c';c.lineWidth=1.2;c.beginPath();let t=tree.seed%6,rr=R*.97;c.moveTo(cx+Math.cos(t)*rr,cy+Math.sin(t)*rr);
+  for(let k=0;k<6;k++){rr-=R*.035;t+=(r()-.5)*.04;c.lineTo(cx+Math.cos(t)*rr,cy+Math.sin(t)*rr)}c.stroke()}
+function ringAt(tree,ex,ey){const g=tree._g;if(!g)return null;const dx=ex-g.cx,dy=ey-g.cy,d=Math.hypot(dx,dy),t=Math.atan2(dy,dx);
+  const rad=d/(1+shape(t,tree.seed)*Math.min(1,d/g.R*1.6));if(rad<=g.r0)return -1;
+  for(let i=0;i<g.radii.length;i++)if(rad<=g.radii[i])return i;return null}
+
+/* ---------- memories ---------- */
+function memText(tree,v){const G=(m,f)=>SPECIES[tree.sp].g=='m'?m:f;
+  switch(v.kind){
+    case 'meet':return `День знакомства. Обхват — ${tree.girth} см. С этого кольца всё началось.`;
+    case 'hug':return `Обнимались ${v.dur||60} секунд. Сердце замедлилось до ${v.bpm||24} ударов — почти до моего.`;
+    case 'listen':return `Записали мой голос: ${v.w}. Послушай его зимой.`;
+    case 'sit':return `Посидели рядом ${v.min} мин. Ничего не случилось — и это было хорошо.`;
+    case 'leaf':return `Мой лист теперь в гербарии. Я отдал${G('','а')} лучший.`;
+    case 'rub':return 'Сняли оттиск коры. Теперь у тебя есть отпечаток моей кожи.';
+    case 'photo':return 'Снимок по кальке — ещё кадр в мою хронику.';}
+  return ({'ливень':'Шёл ливень. Мы мокли вместе.','снег':'Снег лёг на ветки. К стволу вела одна цепочка следов.',
+    'туман':`Был туман. Я видел${G('','а')} только тебя.`,'листопад':`Я ронял${G('','а')} листья тебе на плечи.`,
+    'гроза':'Гремела гроза. Хорошо, что под кроной было сухо.','жара':'Была жара. Моя тень пригодилась.',
+    'мороз, ясно':'Мороз звенел в ветках. Короткая встреча — но встреча.','метель':'Метель. Ты всё равно дошёл. Или дошла. Я не разглядел'+G('','а')+'.',
+    'первый иней':'Первый иней. Я весь в серебре.'})[v.w]||'Просто встреча. Без повода — самые лучшие.'}
+
+/* ---------- leaves & bark ---------- */
+const LEAF={
+  oak:'M50 135 L50 120 C40 118 30 112 34 104 C22 104 18 94 28 88 C16 86 14 74 26 70 C16 64 20 52 32 52 C26 42 34 30 44 34 C42 22 48 12 50 8 C52 12 58 22 56 34 C66 30 74 42 68 52 C80 52 84 64 74 70 C86 74 84 86 72 88 C82 94 78 104 66 104 C70 112 60 118 50 120 Z',
+  birch:'M50 134 L50 118 C30 112 18 92 22 70 C26 48 40 28 50 12 C60 28 74 48 78 70 C82 92 70 112 50 118 Z',
+  maple:'M50 134 L50 112 L30 118 L34 104 L12 100 L22 88 L6 70 L26 70 L22 50 L38 60 L40 36 L48 46 L50 12 L52 46 L60 36 L62 60 L78 50 L74 70 L94 70 L78 88 L88 100 L66 104 L70 118 L50 112 Z',
+  linden:'M50 134 L50 116 C28 116 10 98 14 74 C18 54 34 48 46 56 C42 40 46 26 52 14 C60 30 76 44 84 62 C92 84 76 112 50 116 Z',
+  willow:'M50 136 L50 124 C42 100 40 60 50 8 C60 60 58 100 50 124 Z'};
+function leafSVG(sp,col,rot=0){if(sp=='pine')return `<svg viewBox="0 0 100 140"><g transform="rotate(${rot} 50 70)" stroke="${col}" stroke-width="3" stroke-linecap="round" fill="none"><path d="M50 130 C46 90 40 50 30 12"/><path d="M50 130 C54 90 62 50 72 14"/><path d="M46 132h8" stroke="#6b5039" stroke-width="5"/></g></svg>`;
+  return `<svg viewBox="0 0 100 140"><g transform="rotate(${rot} 50 70)"><path d="${LEAF[sp]}" fill="${col}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M50 134 L50 18" stroke="${INK}" stroke-width=".9" fill="none" opacity=".7"/>
+  <g stroke="${INK}" stroke-width=".6" opacity=".55" fill="none"><path d="M50 100 L30 86M50 100 L70 86M50 80 L28 64M50 80 L72 64M50 60 L36 44M50 60 L64 44"/></g></g></svg>`}
+const leafColor=(sp,season)=>season=='spring'?'#9cbf63':season=='summer'?'#5e8a3a':AUTUMN[sp][0];
+function barkPattern(sp,W,H,seed){const o=document.createElement('canvas');o.width=W;o.height=H;const c=o.getContext('2d'),r=rng(seed);
+  c.fillStyle=c.strokeStyle='#2a251f';c.lineCap='round';
+  if(sp=='birch'){for(let i=0;i<70;i++){const x=r()*W,y=r()*H,w=10+r()*34;c.fillRect(x,y,w,1.5+r()*3)}
+    for(let i=0;i<5;i++){const x=r()*W,y=r()*H,s=10+r()*16;c.beginPath();c.moveTo(x,y-s);c.lineTo(x+s*.6,y);c.lineTo(x,y+s);c.lineTo(x-s*.6,y);c.fill()}}
+  else if(sp=='pine'){for(let y=0;y<H;y+=14+r()*10)for(let x=-10;x<W;x+=24+r()*20){c.beginPath();
+      c.rect(x+r()*4,y+r()*3,18+r()*16,9+r()*8);c.fill()}}
+  else if(sp=='willow'){c.lineWidth=5;for(let i=-H;i<W;i+=16+r()*8){c.beginPath();c.moveTo(i,0);c.lineTo(i+H*.6,H);c.stroke();c.beginPath();c.moveTo(i+H*.6,0);c.lineTo(i,H);c.stroke()}}
+  else{const step=sp=='oak'?13:sp=='maple'?9:7,lw=sp=='oak'?[4,9]:sp=='maple'?[2,5]:[1.5,3];
+    for(let x=0;x<W;x+=step*(.7+r()*.6)){let y=0,xx=x;c.beginPath();c.moveTo(xx,y);c.lineWidth=lw[0]+r()*(lw[1]-lw[0]);
+      while(y<H){y+=8+r()*16;xx+=(r()-.5)*6;if(r()<.12){c.stroke();c.beginPath();y+=6+r()*10;c.moveTo(xx,y)}else c.lineTo(xx,y)}c.stroke()}}
+  return o}
+function rubbingURL(sp,seed){const S=220,o=document.createElement('canvas');o.width=o.height=S;const c=o.getContext('2d');
+  c.fillStyle='#f1e7d1';c.fillRect(0,0,S,S);const p=barkPattern(sp,S,S,seed);c.globalAlpha=.72;c.drawImage(p,0,0);c.globalAlpha=.06;
+  c.fillStyle=INK;c.beginPath();c.ellipse(S/2,S/2,S*.47,S*.44,0,0,7);c.fill();return o.toDataURL()}
+
+/* ---------- wind voice (synth stand-in for the mic) ---------- */
+let AC;
+function wind(seed,dur,an){AC=AC||new (window.AudioContext||window.webkitAudioContext)();const r=rng(seed),sr=AC.sampleRate,len=sr*dur;
+  const buf=AC.createBuffer(1,len,sr),d=buf.getChannelData(0);let b=0;for(let i=0;i<len;i++){b=(b+.02*(Math.random()*2-1))/1.02;d[i]=b*3.5}
+  const hb=AC.createBuffer(1,len,sr),h=hb.getChannelData(0);for(let i=0;i<len;i++)h[i]=(Math.random()*2-1)*(Math.random()<.3?1:.2);
+  const s1=AC.createBufferSource(),s2=AC.createBufferSource();s1.buffer=buf;s2.buffer=hb;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=.7;const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=3500;
+  const g=AC.createGain(),g2=AC.createGain(),m=AC.createGain(),t=AC.currentTime;
+  g.gain.setValueAtTime(0,t);g2.gain.setValueAtTime(0,t);f.frequency.setValueAtTime(400,t);
+  for(let k=0;k<dur;k+=.8){const gust=.25+r()*.75;g.gain.linearRampToValueAtTime(gust,t+k+.4+r()*.4);g2.gain.linearRampToValueAtTime(gust*gust*.05,t+k+.5);
+    f.frequency.linearRampToValueAtTime(280+gust*700,t+k+.6)}
+  g.gain.linearRampToValueAtTime(0,t+dur);g2.gain.linearRampToValueAtTime(0,t+dur);m.gain.value=.8;
+  s1.connect(f).connect(g).connect(m);s2.connect(hp).connect(g2).connect(m);m.connect(AC.destination);if(an)m.connect(an);
+  s1.start();s2.start();return {stop(){try{s1.stop();s2.stop()}catch(e){}}}}
+function waveThumb(cv,seed){const [c,W,H]=fitCanvas(cv),r=rng(seed);c.strokeStyle=INK;c.lineWidth=1.4;
+  for(let x=2;x<W;x+=3){const a=(Math.sin(x*.05+seed)*.5+.5)*(.3+r()*.7)*H*.42;c.beginPath();c.moveTo(x,H/2-a);c.lineTo(x,H/2+a);c.stroke()}}
+
+/* ---------- map ---------- */
+let underground=false,mapRAF=0;
+const strands=[];
+function buildStrands(){strands.length=0;const r=rng(7);
+  for(let i=0;i<trees.length;i++)for(let j=i+1;j<trees.length;j++)for(let k=0;k<6;k++)
+    strands.push({a:trees[i],b:trees[j],o1:[(r()-.5)*.25,(r()-.5)*.25],o2:[(r()-.5)*.25,(r()-.5)*.25],ph:r(),w:.4+r()*.9})}
+const bez=(p0,p1,p2,p3,t)=>{const u=1-t;return u*u*u*p0+3*u*u*t*p1+3*u*t*t*p2+t*t*t*p3};
+function drawMap(cv,mini,mark){const [c,W,H]=fitCanvas(cv),r=rng(3),ug=underground&&!mini;
+  if(!ug){c.fillStyle='#e8dbbd';c.fillRect(0,0,W,H);
+    // park hatch
+    c.save();c.beginPath();c.ellipse(W*.32,H*.45,W*.25,H*.25,-.3,0,7);c.clip();c.strokeStyle='#7f9a5555';c.lineWidth=1;
+    for(let x=-H;x<W;x+=6){c.beginPath();c.moveTo(x,0);c.lineTo(x+H,H);c.stroke()}c.restore();
+    // river
+    c.strokeStyle='#9fb3b8';c.lineWidth=16;c.lineCap='round';c.beginPath();c.moveTo(-10,H*.92);
+    c.bezierCurveTo(W*.3,H*.75,W*.55,H*1.02,W+10,H*.82);c.stroke();
+    // streets
+    c.lineCap='butt';const st=[[0,H*.18,W,H*.12],[0,H*.6,W,H*.55],[W*.47,0,W*.5,H],[W*.85,0,W*.8,H]];
+    for(const s of st){c.strokeStyle='#c9b48d';c.lineWidth=12;c.beginPath();c.moveTo(s[0],s[1]);c.lineTo(s[2],s[3]);c.stroke();
+      c.strokeStyle='#f6efdf';c.lineWidth=9;c.stroke()}
+    c.fillStyle='#6f5f4a';c.font='9px "PT Mono"';c.save();c.translate(W*.06,H*.585);c.rotate(-.02);c.fillText('УЛ. САДОВАЯ',0,0);c.restore();
+    c.save();c.translate(W*.48,H*.95);c.rotate(-1.55);c.restore();
+    c.fillText('ПАРК',W*.14,H*.3);c.fillText('р. Тихая',W*.62,H*.93);
+    // compass
+    c.strokeStyle=INK;c.lineWidth=1;c.beginPath();c.moveTo(W-22,H-58);c.lineTo(W-22,H-30);c.stroke();c.font='11px "PT Mono"';c.fillStyle=INK;c.fillText('С',W-26,H-62);
+    for(const t of trees){const x=t.pos.x*W,y=t.pos.y*H,s=mini?34:48;c.save();c.translate(x-s/2,y-s*.92);
+      drawTree(c,s,s,t.sp,seasonOf(TODAY),t.seed);c.restore();
+      c.fillStyle=t==cur&&!mini?'#a9533f':INK;c.font=(mini?'600 15px':'700 18px')+' Caveat';c.textAlign='center';c.fillText(t.name,x,y+15);c.textAlign='left'}
+    if(mark){c.strokeStyle='#a9533f';c.lineWidth=2.5;const x=mark.x*W,y=mark.y*H;c.beginPath();c.moveTo(x-8,y-8);c.lineTo(x+8,y+8);c.moveTo(x+8,y-8);c.lineTo(x-8,y+8);c.stroke()}
+  }else{const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#2e241b');gr.addColorStop(1,'#16110c');c.fillStyle=gr;c.fillRect(0,0,W,H);
+    c.fillStyle='#3a2e23';for(let i=0;i<90;i++){c.beginPath();c.ellipse(r()*W,r()*H,1+r()*4,1+r()*3,r()*3,0,7);c.fill()}
+    const tm=performance.now()/1000;c.lineCap='round';
+    for(const s of strands){const ax=s.a.pos.x*W,ay=s.a.pos.y*H,bx=s.b.pos.x*W,by=s.b.pos.y*H;
+      const p1=[ax+(bx-ax)*.33+s.o1[0]*W,ay+(by-ay)*.33+s.o1[1]*H],p2=[ax+(bx-ax)*.66+s.o2[0]*W,ay+(by-ay)*.66+s.o2[1]*H];
+      c.strokeStyle='rgba(233,213,138,.28)';c.lineWidth=s.w;c.shadowColor='#e9d58a';c.shadowBlur=6;c.beginPath();c.moveTo(ax,ay);c.bezierCurveTo(p1[0],p1[1],p2[0],p2[1],bx,by);c.stroke();
+      // a "message" travels from the most recently visited tree
+      const from=s.a==cur?0:s.b==cur?1:-1;if(from<0)continue;let t=(tm*.18+s.ph)%1;if(from==1)t=1-t;
+      const px=bez(ax,p1[0],p2[0],bx,t),py=bez(ay,p1[1],p2[1],by,t);c.fillStyle='#fff3c4';c.shadowBlur=12;c.beginPath();c.arc(px,py,2.2,0,7);c.fill()}
+    c.shadowBlur=0;
+    for(const t of trees){const x=t.pos.x*W,y=t.pos.y*H,rr=rng(t.seed);c.strokeStyle='rgba(201,155,98,.55)';c.lineWidth=1;
+      for(let i=0;i<16;i++){const a=rr()*Math.PI*2,l=14+rr()*18;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+Math.cos(a+.4)*l*.5,y+Math.sin(a+.4)*l*.5,x+Math.cos(a)*l,y+Math.sin(a)*l);c.stroke()}
+      c.fillStyle='#e9d58a';c.shadowColor='#e9d58a';c.shadowBlur=14;c.beginPath();c.arc(x,y,4,0,7);c.fill();c.shadowBlur=0;
+      c.font='700 18px Caveat';c.textAlign='center';c.fillStyle='#e6d6b8';c.fillText(t.name,x,y-26);c.textAlign='left'}
+    c.fillStyle='#e6d6b8aa';c.font='10px "PT Mono"';c.fillText('ГРИБНИЦА · весточка от «'+cur.name+'» идёт к остальным',10,H-10)}
+  if(ug){cancelAnimationFrame(mapRAF);mapRAF=requestAnimationFrame(()=>{if($('#s-grove').classList.contains('on'))drawMap(cv)})}}
+
+/* ---------- screens ---------- */
+function show(s){$$('.screen').forEach(e=>e.classList.toggle('on',e.id=='s-'+s));$$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.s==s));
+  ({grove:renderGrove,tree:renderTree,meet:renderMeet,book:renderBook,new:renderNew})[s]()}
+$$('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.s));
+$('#dist').onclick=()=>{near=!near;const d=$('#dist');d.classList.toggle('far',!near);d.textContent=near?'у дерева · 12 м':'до дерева · 2,4 км';
+  if($('#s-meet').classList.contains('on'))renderMeet()};
+
+function lastVisit(t){return t.visits[t.visits.length-1].d}
+function renderGrove(){buildStrands();drawMap($('#map'));$('#groveCount').textContent=trees.length+' из 7 деревьев';
+  $('#call').innerHTML=`<div class="env"></div><div><div class="mono muted">ЗОВ · сегодня, 08:14</div>
+    <div class="say" style="margin-top:2px">Я весь красный. Через неделю облечу — успей посмотреть.</div><div class="muted">— «Огонёк», клён во дворе</div></div>`;
+  $('#treeList').innerHTML=trees.map(t=>{const d=daysAgo(lastVisit(t)),L=levelOf(t.visits.length);
+    return `<div class="treerow" data-id="${t.id}"><canvas></canvas><div style="flex:1"><div class="nm">${t.name}</div>
+      <div class="muted">${SPECIES[t.sp].name} · ${L.name.toLowerCase()} · ${d==0?'сегодня':d+' '+plural(d,['день','дня','дней'])+' назад'}</div>
+      ${d>30?'<div class="mossy">На карточке нарос мох. Дерево ждёт.</div>':''}</div><span class="mono muted">${t.visits.length}</span></div>`}).join('');
+  $$('#treeList .treerow').forEach(el=>{const t=trees.find(x=>x.id==el.dataset.id);const [c,W,H]=fitCanvas(el.querySelector('canvas'));
+    drawTree(c,W,H,t.sp,seasonOf(TODAY),t.seed);el.onclick=()=>{cur=t;show('tree')}});
+  $('#addTree').disabled=trees.length>=7}
+$$('.toggle button').forEach(b=>b.onclick=()=>{underground=b.dataset.u=='1';$$('.toggle button').forEach(x=>x.classList.toggle('on',x==b));drawMap($('#map'))});
+$('#map').onclick=e=>{if(underground)return;const r=e.target.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+  let best=null,bd=.08;for(const t of trees){const d=Math.hypot(t.pos.x-x,(t.pos.y-y)*r.height/r.width);if(d<bd){bd=d;best=t}}if(best){cur=best;show('tree')}};
+$('#addTree').onclick=()=>{nt={step:0};show('new')};
+
+function portrait(el,t,season){el.innerHTML='';if(t.photo){el.innerHTML=`<img src="${t.photo}" alt="">`;return}
+  const cv=document.createElement('canvas');el.appendChild(cv);const [c,W,H]=fitCanvas(cv);drawTree(c,W,H,t.sp,season,t.seed)}
+let hiRing=null;
+function renderTree(){const t=cur,S=SPECIES[t.sp],n=t.visits.length,L=levelOf(n),d=daysAgo(lastVisit(t));
+  portrait($('#portrait'),t,seasonOf(TODAY));$('#portrait').classList.toggle('moss',d>30);
+  $('#tLevel').textContent=L.name;$('#tName').textContent='«'+t.name+'»';
+  const age=ageOf(t.girth,S.k);
+  $('#tFacts').innerHTML=`${S.name.toUpperCase()} · ${S.char}<br>обхват ${t.girth} см · ~${age} ${plural(age,['год','года','лет'])}<br>дружим с ${fmt(t.visits[0].d)}`;
+  $('#tBar').style.width=Math.round(L.p*100)+'%';
+  const line=d>30?(S.g=='m'?'Я знал, что придёшь.':'Я знала, что придёшь.'):S.lines[(TODAY.getDate()+t.id)%S.lines.length];
+  $('#tSay').textContent=line;hiRing=n-1;drawRings($('#rings'),t,hiRing);showMem(t,hiRing);
+  const cnt=k=>t.visits.filter(v=>v.kind==k).length;
+  $('#tStats').innerHTML=`<div><b>${n}</b><span>встреч</span></div><div><b>${cnt('hug')}</b><span>объятий</span></div><div><b>${cnt('listen')}</b><span>голосов</span></div><div><b>${cnt('leaf')}</b><span>листьев</span></div>`}
+function showMem(t,i){const v=i==-1||i==0?t.visits[0]:t.visits[i];
+  $('#mem').innerHTML=`<div class="d">${i==-1?'СЕРДЦЕВИНА':'КОЛЬЦО '+(i+1)} · ${fmt(v.d)} · ${SEASON_RU[seasonOf(v.d)]} · ${v.w}, ${v.t>0?'+':''}${v.t}° · ${KIND_RU[v.kind]}</div>
+    <div class="say">${memText(t,v)}</div>${i==-1&&t.why?`<div class="muted" style="margin-top:6px">Почему именно ты: «${t.why}»</div>`:''}`}
+$('#rings').onclick=e=>{const r=e.target.getBoundingClientRect(),i=ringAt(cur,e.clientX-r.left,e.clientY-r.top);if(i==null)return;
+  hiRing=i;drawRings($('#rings'),cur,i);showMem(cur,i)};
+$('#giveTree').onclick=()=>openOv('Передать дерево',`<p class="sub" style="margin-top:6px">Покажите код другу — «${cur.name}» станет и его деревом. Кольца у каждого свои.</p>
+  <div class="card" style="align-self:center;padding:14px"><canvas id="qr" style="width:200px;height:200px;display:block"></canvas></div>
+  <p class="center hand" style="font-size:22px">${SPECIES[cur.sp].name} «${cur.name}» · ${cur.girth} см</p>`,()=>{
+  const [c,W]=fitCanvas($('#qr')),r=rng(cur.seed),n=25,s=W/n;c.fillStyle=INK;
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const f=(x<7&&y<7)||(x>17&&y<7)||(x<7&&y>17);
+    if(f){const lx=x%18,ly=y%18,e=Math.max(Math.abs(lx-3),Math.abs(ly-3));if(e!=2)c.fillRect(x*s,y*s,s,s)}else if(r()<.48)c.fillRect(x*s,y*s,s,s)}});
+
+/* ---------- meeting ---------- */
+const ICON={
+  hug:'<path d="M12 21c-5-3-8-6-8-10a4 4 0 0 1 8-1 4 4 0 0 1 8 1c0 4-3 7-8 10z"/>',
+  listen:'<path d="M6 9a6 6 0 0 1 12 0c0 4-4 5-4 9a3 3 0 0 1-5 2"/><path d="M9 9a3 3 0 0 1 6 0"/>',
+  rub:'<path d="M4 20 L16 8l3 3L7 23z"/><path d="M16 8l2-4 3 3-2 4"/><path d="M3 5c3 1 5 0 8-1M3 9c3 1 5 0 7 0"/>',
+  leaf:'<path d="M5 19C5 9 12 4 20 4c0 8-5 15-15 15z"/><path d="M5 19 14 10"/>',
+  chron:'<rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 6l2-3h4l2 3"/>',
+  sit:'<path d="M5 11h14M7 11v9M17 11v9M8 11V6h8v5"/>',
+  hollow:'<ellipse cx="12" cy="12" rx="5" ry="7"/><path d="M9 12h6"/>'};
+function renderMeet(){const t=cur;$('#mTitle').textContent='Встреча с «'+t.name+'»';
+  $('#mSub').textContent=near?`Вы у дерева. ${SPECIES[t.sp].name}, ${SEASON_RU[seasonOf(TODAY)]}, ${TODAY.getDate()} ${MON[TODAY.getMonth()]}. Чем займётесь?`:
+    'Дерево далеко. Всё это можно делать только рядом с ним — дружба не переносится по воздуху.';
+  const h=t.hollow;$('#hollow').innerHTML=h&&near?`<div class="card tape" style="cursor:pointer" id="hollowCard"><div class="mono muted">В ДУПЛЕ · оставлено ${fmt(h.left)}</div>
+    <div class="say">Здесь записка годичной давности. Сегодня её можно открыть.</div></div>`:'';
+  if($('#hollowCard'))$('#hollowCard').onclick=()=>openHollow(true);
+  const A=[['hug','Обнять','Телефон к груди, грудь к стволу. Минута тишины.'],['listen','Послушать','Микрофон к коре: 10 секунд ветра — голос дня.'],
+    ['rub','Фроттаж','Проведите пальцем — проступит кора.'],['leaf','Лист в гербарий','Один лист в сезон.'],
+    ['chron','Снимок по кальке','Тот же ракурс, что в прошлый раз — для хроники.'],['sit','Посидеть рядом','Экраном вниз. Ничего не происходит.'],
+    ['hollow','Тайник в дупле','Записка себе. Откроется здесь через год.']];
+  $('#actions').innerHTML=A.map((a,i)=>`<div class="act ${near?'':'off'} ${i==6?'wide':''}" data-a="${a[0]}"><svg viewBox="0 0 24 24">${ICON[a[0]]}</svg><div><b>${a[1]}</b><span>${a[2]}</span></div></div>`).join('');
+  $$('#actions .act').forEach(el=>el.onclick=()=>{if(!near){toast('Дерево ждёт вас на месте. Подойдите ближе 50 м.');return}
+    ({hug:openHug,listen:openListen,rub:openRub,leaf:openLeaf,chron:openChron,sit:openSit,hollow:()=>openHollow(false)})[el.dataset.a]()})}
+function addVisit(kind,extra={}){const r=rng(Date.now()%1e6),v=mkVisit(new Date(TODAY),kind,r);Object.assign(v,extra);cur.visits.push(v);return v}
+
+/* overlay */
+let ovClose=null;
+function openOv(title,html,mount,opt={}){$('#ovTitle').textContent=title;$('#ovBody').innerHTML=html;$('#ov').classList.add('on');$('#ov').classList.toggle('dark',!!opt.dark);
+  ovClose=null;if(mount)ovClose=mount()||null}
+function closeOv(){if(typeof ovClose=='function')ovClose();ovClose=null;$('#ov').classList.remove('on')}
+$('#ovX').onclick=closeOv;
+
+function openHug(){const S=SPECIES[cur.sp];
+  openOv('Объятие',`<p class="sub center" style="margin-top:4px">Прижмите телефон к груди и обнимите ствол.<br>В прототипе — нажмите и держите круг.</p>
+   <div class="heart" id="heart"><div class="ring"></div><div class="core" id="bpm">72</div><div class="unit">УДАРОВ В МИНУТУ</div></div>
+   <div class="prog"><i id="hp"></i></div><p class="center muted mono" id="hugTxt">ваш ритм → ритм дерева</p><div class="say center pad" id="hugSay" style="min-height:60px"></div>`,()=>{
+  const DUR=15000;let hold=false,t0=0,raf=0,tm=0,done=false,p=0;const heart=$('#heart');
+  const bpmNow=()=>Math.round(72-(72-24)*p);
+  const beat=()=>{if(!hold)return;heart.classList.remove('b');void heart.offsetWidth;heart.classList.add('b');navigator.vibrate&&navigator.vibrate([25,110,18]);tm=setTimeout(beat,60000/bpmNow())};
+  const tick=()=>{if(!hold)return;p=Math.min(1,(performance.now()-t0)/DUR);$('#hp').style.width=p*100+'%';$('#bpm').textContent=bpmNow();
+    if(p>=1){done=true;hold=false;clearTimeout(tm);const v=addVisit('hug',{dur:60,bpm:24});
+      $('#hugTxt').textContent='В спиле появилось тёплое кольцо';$('#hugSay').textContent=memText(cur,v);toast('Кольцо '+cur.visits.length+' · объятие');return}
+    raf=requestAnimationFrame(tick)};
+  const down=e=>{e.preventDefault();if(done)return;hold=true;t0=performance.now()-p*DUR;beat();tick();$('#hugSay').textContent=''};
+  const up=()=>{if(!hold)return;hold=false;clearTimeout(tm);cancelAnimationFrame(raf);
+    if(!done)$('#hugSay').textContent=p<.3?'Ещё немного. '+(S.g=='m'?'Он':'Она')+' только начал'+(S.g=='m'?'':'а')+' слышать.':'Почти. Не отпускай.'};
+  heart.addEventListener('pointerdown',down);heart.addEventListener('pointerup',up);heart.addEventListener('pointerleave',up);
+  return ()=>{hold=false;clearTimeout(tm);cancelAnimationFrame(raf)}})}
+
+function openListen(){openOv('Голос дня',`<p class="sub center" style="margin-top:4px">Приложите телефон микрофоном к коре и не шевелитесь.<br><span class="muted">(в прототипе — синтез ветра вместо микрофона)</span></p>
+  <canvas id="scope"></canvas><p class="center mono" id="lt" style="font-size:30px">10</p>
+  <div class="center" style="margin-top:10px"><button class="btn" id="lgo">Слушать 10 секунд</button></div><div class="say center pad" id="lsay"></div>`,()=>{
+  let snd=null,raf=0,iv=0;const [c,W,H]=fitCanvas($('#scope'));c.strokeStyle=INK;c.beginPath();c.moveTo(0,H/2);c.lineTo(W,H/2);c.stroke();
+  $('#lgo').onclick=()=>{$('#lgo').disabled=true;const seed=Math.floor(Math.random()*1e6);AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const an=AC.createAnalyser();an.fftSize=1024;const buf=new Uint8Array(an.fftSize);snd=wind(seed,10,an);let left=10;
+    iv=setInterval(()=>{left--;$('#lt').textContent=left;if(left<=0){clearInterval(iv);cancelAnimationFrame(raf);const v=addVisit('listen',{seed});
+      $('#lsay').textContent=memText(cur,v);toast('Голос сохранён в тетрадь')}},1000);
+    const draw=()=>{an.getByteTimeDomainData(buf);c.clearRect(0,0,W,H);c.strokeStyle=INK;c.lineWidth=1.4;c.beginPath();
+      for(let i=0;i<buf.length;i++){const x=i/buf.length*W,y=H/2+(buf[i]-128)/128*H*1.6;i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke();raf=requestAnimationFrame(draw)};draw()};
+  return ()=>{snd&&snd.stop();clearInterval(iv);cancelAnimationFrame(raf)}})}
+
+function openRub(){openOv('Фроттаж',`<p class="sub center" style="margin-top:4px">Приложите бумагу к коре — и водите пальцем, как грифелем.</p>
+  <canvas id="rub"></canvas><p class="center muted mono" id="rubPct">0%</p><div class="center" style="margin-top:8px"><button class="btn" id="rubSave" disabled>Вклеить в тетрадь</button></div>`,()=>{
+  const cv=$('#rub'),[c,W,H]=fitCanvas(cv),pat=barkPattern(cur.sp,W,H,Date.now()%9999),cells=new Set(),N=12;let down=false,last=null;
+  const rubAt=(x,y)=>{c.save();c.beginPath();c.arc(x,y,20,0,7);c.clip();c.globalAlpha=.2;c.drawImage(pat,0,0,W,H);c.globalAlpha=.025;c.fillStyle=INK;c.fill();c.restore();
+    cells.add(Math.floor(x/W*N)+','+Math.floor(y/H*N));const p=Math.min(100,Math.round(cells.size/(N*N)*100/.7));$('#rubPct').textContent=p+'%';if(p>=60)$('#rubSave').disabled=false};
+  const pos=e=>{const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]};
+  cv.onpointerdown=e=>{down=true;last=pos(e);rubAt(...last);cv.setPointerCapture(e.pointerId)};
+  cv.onpointermove=e=>{if(!down)return;const p=pos(e),d=Math.hypot(p[0]-last[0],p[1]-last[1]);for(let s=6;s<d;s+=6)rubAt(last[0]+(p[0]-last[0])*s/d,last[1]+(p[1]-last[1])*s/d);rubAt(...p);last=p};
+  cv.onpointerup=()=>down=false;
+  $('#rubSave').onclick=()=>{book.rubs.unshift({sp:cur.sp,name:cur.name,d:new Date(TODAY),url:cv.toDataURL()});addVisit('rub');toast('Оттиск коры «'+cur.name+'» — в тетради');closeOv()}})}
+
+function openLeaf(){const s=seasonOf(TODAY),has=cur.visits.some(v=>v.kind=='leaf'&&seasonOf(v.d)==s&&daysAgo(v.d)<90);
+  const col=leafColor(cur.sp,s);
+  openOv('Лист в гербарий',`<p class="sub center" style="margin-top:4px">${has?'В этом сезоне лист уже засушен. Следующий — когда сменится время года.':'Найдите упавший лист — не срывайте живой. Сфотографируйте его на ладони.'}</p>
+   <div class="card tape" style="align-self:center;width:220px;text-align:center;margin-top:16px">${leafSVG(cur.sp,col,-12).replace('<svg','<svg style="height:220px;width:100%"')}
+   <div class="hand" style="font-size:20px">${SPECIES[cur.sp].name} «${cur.name}» · ${fmt(TODAY)}</div></div>
+   <div class="center"><button class="btn" id="press" ${has?'disabled':''}>Засушить</button></div>`,()=>{
+  $('#press').onclick=()=>{addVisit('leaf');toast('Лист лёг между страниц');closeOv()}})}
+
+function openSit(){openOv('Посидеть рядом',`<canvas id="sitCv"></canvas><div class="sitTxt"><div class="t" id="sitT">00:00</div>
+  <p style="opacity:.7;margin:10px 30px 24px;line-height:1.5">Положите телефон экраном вниз.<br>Мы просто посидим.</p><button class="btn ghost" id="sitUp" style="color:#e6d6b8;border-color:#e6d6b8">Встать</button></div>`,()=>{
+  const cv=$('#sitCv'),[c,W,H]=fitCanvas(cv),cols=leafCols(cur.sp,seasonOf(TODAY)),L=[];const t0=performance.now();let raf=0;
+  for(let i=0;i<14;i++)L.push({x:Math.random()*W,y:Math.random()*H,v:.15+Math.random()*.25,ph:Math.random()*6,c:cols[i%cols.length]});
+  const loop=()=>{c.clearRect(0,0,W,H);const tm=performance.now()/1000;
+    for(const l of L){l.y+=l.v;if(l.y>H+10){l.y=-10;l.x=Math.random()*W}c.save();c.translate(l.x+Math.sin(tm*.6+l.ph)*16,l.y);c.rotate(Math.sin(tm+l.ph));
+      c.globalAlpha=.55;c.fillStyle=l.c;c.beginPath();c.ellipse(0,0,6,3,0,0,7);c.fill();c.restore()}
+    const s=Math.floor((performance.now()-t0)/1000);$('#sitT').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');raf=requestAnimationFrame(loop)};loop();
+  $('#sitUp').onclick=()=>{const s=(performance.now()-t0)/1000;if(s<5){toast('Так быстро? Посидите ещё немного.');return}
+    addVisit('sit',{min:Math.max(1,Math.round(s/60))});toast('Кольцо '+cur.visits.length+' · посидели рядом');closeOv()};
+  return ()=>cancelAnimationFrame(raf)},{dark:true})}
+
+function openChron(){const v=cur.visits;if(v.length<2){toast('Хроника начнётся со второй встречи');return}
+  const pick=[];for(let i=0;i<8;i++){const x=v[Math.round(i/7*(v.length-1))];if(!pick.includes(x))pick.push(x)}
+  openOv('Хроника',`<p class="sub center" style="margin-top:4px">Каждый снимок — по кальке прошлого. За год складывается таймлапс.</p>
+   <canvas id="chron"></canvas><div class="pad" style="margin-top:8px"><input type="range" id="chs" min="0" max="${pick.length}" value="${pick.length}">
+   <div class="row" style="justify-content:space-between"><span class="mono muted" id="chd"></span><button class="btn ghost small" id="chp">▶ таймлапс</button></div>
+   <div class="center" style="margin-top:12px"><button class="btn" id="shoot">Щёлк — совместите с калькой</button></div></div>`,()=>{
+  const cv=$('#chron');let [c,W,H]=fitCanvas(cv),raf=0,iv=0,live=false;
+  const jit=x=>{const r=rng(x.seed);return {dx:(r()-.5)*14,dy:(r()-.5)*8,sc:.95+r()*.1}};
+  const paint=(x,o,ghost)=>{if(ghost){c.save();c.globalAlpha=.3;drawTree(c,W,H,cur.sp,seasonOf(ghost.d),cur.seed,jit(ghost));c.restore()}
+    drawTree(c,W,H,cur.sp,seasonOf(x.d),cur.seed,o)};
+  const frame=i=>{live=false;c.clearRect(0,0,W,H);if(i<pick.length){paint(pick[i],jit(pick[i]),pick[i-1]);
+      $('#chd').textContent=fmt(pick[i].d)+' · '+SEASON_RU[seasonOf(pick[i].d)]}else{startLive()}};
+  const startLive=()=>{live=true;const ghost=pick[pick.length-1],g=jit(ghost);$('#chd').textContent='сейчас · калька: '+fmt(ghost.d);
+    const loop=()=>{if(!live)return;const tm=performance.now()/1000,o={dx:g.dx+Math.sin(tm*.9)*18,dy:g.dy+Math.cos(tm*1.3)*10,sc:g.sc*(1+Math.sin(tm*.7)*.05)};
+      c.clearRect(0,0,W,H);paint({d:TODAY},o,ghost);const m=Math.max(0,100-Math.round(Math.hypot(o.dx-g.dx,o.dy-g.dy)*3.2+Math.abs(o.sc-g.sc)*300));
+      c.fillStyle=m>88?'#5f7a3c':'#a9533f';c.font='13px "PT Mono"';c.fillText('совпадение '+m+'%',10,20);cv._m=m;raf=requestAnimationFrame(loop)};loop()};
+  $('#chs').oninput=e=>{clearInterval(iv);cancelAnimationFrame(raf);frame(+e.target.value)};
+  $('#chp').onclick=()=>{clearInterval(iv);cancelAnimationFrame(raf);let i=0;const s=$('#chs');iv=setInterval(()=>{s.value=i;frame(i);if(++i>pick.length-1)clearInterval(iv)},650)};
+  $('#shoot').onclick=()=>{if(!live){$('#chs').value=pick.length;frame(pick.length);return}
+    if(cv._m<88){toast('Сдвиньтесь — калька не совпала ('+cv._m+'%)');return}addVisit('photo');toast('Снимок лёг в хронику · кольцо '+cur.visits.length);closeOv()};
+  frame(pick.length);return ()=>{live=false;clearInterval(iv);cancelAnimationFrame(raf)}})}
+
+function openHollow(read){const h=cur.hollow;
+  if(read&&h){openOv('Записка из дупла',`<p class="sub center" style="margin-top:4px">Оставлена ${fmt(h.left)} у «${cur.name}». Открыта сегодня.</p>
+    <div class="note">${h.text}</div><div class="center" style="margin-top:10px"><button class="btn" id="hnew">Оставить новую</button></div>`,()=>{
+    $('#hnew').onclick=()=>{book.notes.push({tree:cur.name,left:h.left,text:h.text,opened:true});cur.hollow=null;openHollow(false)}});return}
+  openOv('Тайник в дупле',`<p class="sub center" style="margin-top:4px">Напишите себе — тому, кто придёт сюда через год.<br>Откроется только у этого дерева.</p>
+    <div class="pad"><textarea id="htxt" placeholder="Привет из ${MON[TODAY.getMonth()]}я ${TODAY.getFullYear()}…"></textarea></div>
+    <div class="center" style="margin-top:12px"><button class="btn" id="hseal">Запечатать до ${fmt(new Date(TODAY.getFullYear()+1,TODAY.getMonth(),TODAY.getDate()))}</button></div>`,()=>{
+    $('#hseal').onclick=()=>{const tx=$('#htxt').value.trim();if(!tx){toast('Пустую записку дерево не возьмёт');return}
+      const open=new Date(TODAY.getFullYear()+1,TODAY.getMonth(),TODAY.getDate());book.notes.push({tree:cur.name,left:new Date(TODAY),open,text:tx});
+      cur.hollow=null;toast('Записка в дупле до '+fmt(open));closeOv();renderMeet()}})}
+
+/* ---------- book ---------- */
+let bookTab='herb';
+$$('#bookTabs button').forEach(b=>b.onclick=()=>{bookTab=b.dataset.t;$$('#bookTabs button').forEach(x=>x.classList.toggle('on',x==b));renderBook()});
+function allOf(kind){return trees.flatMap(t=>t.visits.filter(v=>v.kind==kind).map(v=>({t,v}))).sort((a,b)=>b.v.d-a.v.d)}
+function renderBook(){const B=$('#bookBody');
+  if(bookTab=='herb'){const L=allOf('leaf');B.innerHTML=`<div class="herb">${L.map(({t,v},i)=>`<div class="leafcard">${leafSVG(t.sp,leafColor(t.sp,seasonOf(v.d)),(i*37%40)-20)}
+      <div class="cap">«${t.name}» · ${v.d.getDate()} ${MON[v.d.getMonth()]} ${v.d.getFullYear()}<br><span style="opacity:.7">${v.w}, ${v.t>0?'+':''}${v.t}°</span></div></div>`).join('')}</div>`}
+  else if(bookTab=='rub'){if(!book.demo){book.demo=1;allOf('rub').forEach(({t,v})=>book.rubs.push({sp:t.sp,name:t.name,d:v.d,url:rubbingURL(t.sp,v.seed)}))}
+    B.innerHTML=`<div class="rubgrid">${book.rubs.map(r=>`<figure><img src="${r.url}" alt=""><figcaption>«${r.name}» · ${r.d.getDate()} ${MON[r.d.getMonth()]}</figcaption></figure>`).join('')}</div>`}
+  else if(bookTab=='voice'){const L=allOf('listen');B.innerHTML=`<div class="card">${L.map(({t,v},i)=>`<div class="voice"><button data-i="${i}">▶</button><canvas data-s="${v.seed}"></canvas>
+      <div style="flex:none;width:110px"><b style="font-size:13px">«${t.name}»</b><div class="muted">${v.d.getDate()} ${MON[v.d.getMonth()]} · ${v.w}</div></div></div>`).join('')}</div>`;
+    $$('.voice canvas').forEach(cv=>waveThumb(cv,+cv.dataset.s));let snd=null;
+    $$('.voice button').forEach(b=>b.onclick=()=>{snd&&snd.stop();$$('.voice button').forEach(x=>x.textContent='▶');const v=L[b.dataset.i].v;snd=wind(v.seed,6);b.textContent='■';setTimeout(()=>b.textContent='▶',6000)})}
+  else{const N=[{tree:'Старик',left:new Date('2025-10-22'),open:new Date('2026-10-22'),text:trees[0].hollow?null:'',opened:!trees[0].hollow},...book.notes.filter(n=>!n.opened||n.tree!='Старик')];
+    B.innerHTML=N.map(n=>`<div class="card tape"><div class="mono muted">«${n.tree}» · оставлена ${fmt(n.left)}</div>
+      ${n.opened?`<div class="say">${n.text||trees.find(t=>t.name==n.tree)&&'Открыта. Прочитана.'}</div>`:`<div class="say">Запечатана до ${fmt(n.open)}. Откроется только у дерева.</div>`}</div>`).join('')}}
+
+/* ---------- new tree ---------- */
+let nt={step:0};
+const NSUB=['Сфотографируйте дерево целиком — из снимка получится гравюра.','Определите породу по ключу — как в старом определителе.','Обнимите ствол. Сомкнулись ли руки?','Имя, точка на карте и одна строка — почему именно оно.'];
+function renderNew(){$('#newSub').textContent=NSUB[nt.step];$$('#newSteps i').forEach((e,i)=>e.classList.toggle('on',i<=nt.step));const B=$('#newBody');
+  if(nt.step==0){B.innerHTML=`<label class="photo" id="ph"><canvas id="phc" style="display:none"></canvas><div class="hint" id="phh"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#6f5f4a" stroke-width="1.4">${ICON.chron}</svg>
+      Нажмите, чтобы сфотографировать<br>(откроется камера телефона)</div><input type="file" accept="image/*" capture="environment" id="phf" hidden></label>
+      <div class="pad row" style="justify-content:space-between"><button class="linkish btn ghost small" id="nophoto">без фото</button><button class="btn" id="n0" ${nt.photo?'':'disabled'}>Дальше</button></div>`;
+    if(nt.photo){$('#phh').style.display='none';const cv=$('#phc');cv.style.display='block';const im=new Image();im.onload=()=>{const [c,W,H]=fitCanvas(cv);c.drawImage(im,0,0,W,H)};im.src=nt.photo}
+    $('#phf').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{$('#phh').style.display='none';const cv=$('#phc');cv.style.display='block';
+      nt.photo=engrave(im,cv);$('#n0').disabled=false;toast('Гравюра готова')};im.src=URL.createObjectURL(f)};
+    $('#nophoto').onclick=()=>{nt.photo=null;nt.step=1;renderNew()};$('#n0').onclick=()=>{nt.step=1;renderNew()}}
+  else if(nt.step==1){B.innerHTML=`<div class="key">${Object.entries(SPECIES).map(([k,s])=>`<div data-k="${k}" class="${nt.sp==k?'on':''}">${leafSVG(k,leafColor(k,'summer'),-10)}<b>${s.name}</b><span>${s.hint}</span></div>`).join('')}</div>
+      <div class="pad row" style="justify-content:flex-end"><button class="btn" id="n1" ${nt.sp?'':'disabled'}>Дальше</button></div>`;
+    $$('.key div').forEach(d=>d.onclick=()=>{nt.sp=d.dataset.k;renderNew()});$('#n1').onclick=()=>{nt.step=2;renderNew()}}
+  else if(nt.step==2){const S=SPECIES[nt.sp],g=nt.girth||220;
+    B.innerHTML=`<div class="card"><div class="row" style="gap:8px"><button class="btn ${nt.closed===true?'':'ghost'}" id="cy" style="flex:1">Да, сомкнулись</button><button class="btn ${nt.closed===false?'':'ghost'}" id="cn" style="flex:1">Нет</button></div>
+      ${nt.closed===false?`<label class="f">ОБХВАТ НА ВЫСОТЕ ГРУДИ: <b id="gv">${g}</b> СМ</label><input type="range" id="gr" min="60" max="600" step="5" value="${g}">`:''}
+      ${nt.closed!=null?`<div class="say" id="age"></div><p class="muted" style="margin-top:6px">Возраст по формуле лесоводов: диаметр × коэффициент породы (${S.name.toLowerCase()} — ${S.k}). Примерно, но честно.</p>`:''}</div>
+      <div class="pad row" style="justify-content:flex-end"><button class="btn" id="n2" ${nt.closed==null?'disabled':''}>Дальше</button></div>`;
+    const upd=()=>{const a=ageOf(nt.girth,S.k),gen=Math.round(a/25);if($('#age'))$('#age').textContent=`${nt.closed?'Руки сомкнулись — обхват около '+nt.girth+' см. ':''}${S.g=='m'?'Ему':'Ей'} около ${a} ${plural(a,['года','лет','лет']).replace('года','год')}. ${a>60?'Это примерно '+gen+' '+plural(gen,['поколение','поколения','поколений'])+' людей.':'Совсем молод'+(S.g=='m'?'ой':'ая')+'.'}`};
+    $('#cy').onclick=()=>{nt.closed=true;nt.girth=150;renderNew()};$('#cn').onclick=()=>{nt.closed=false;nt.girth=g;renderNew()};
+    if($('#gr'))$('#gr').oninput=e=>{nt.girth=+e.target.value;$('#gv').textContent=nt.girth;upd()};if(nt.closed!=null)upd();$('#n2').onclick=()=>{nt.step=3;renderNew()}}
+  else{B.innerHTML=`<div class="card"><label class="f" style="margin-top:0">ИМЯ</label><input type="text" id="nn" placeholder="Например, Молчун" value="${nt.name||''}">
+      <label class="f">ПОЧЕМУ ИМЕННО ОНО</label><input type="text" id="nw" placeholder="одна строка" value="${nt.why||''}">
+      <label class="f">ТОЧКА НА КАРТЕ — нажмите, где оно стоит (в приложении — по GPS)</label><canvas id="miniMap"></canvas></div>
+      <div class="pad row" style="justify-content:flex-end"><button class="btn" id="n3">Подружиться</button></div>`;
+    const mm=$('#miniMap');drawMap(mm,true,nt.pos);
+    mm.onclick=e=>{const r=mm.getBoundingClientRect();nt.pos={x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};drawMap(mm,true,nt.pos)};
+    $('#n3').onclick=()=>{const name=$('#nn').value.trim();if(!name){toast('У друга должно быть имя');return}if(!nt.pos){toast('Отметьте дерево на карте');return}
+      const seed=Math.floor(Math.random()*9999)+100,r=rng(seed),t={id:Date.now(),name,sp:nt.sp,girth:nt.girth,seed,pos:nt.pos,why:$('#nw').value.trim(),photo:nt.photo,visits:[mkVisit(new Date(TODAY),'meet',r)]};
+      trees.push(t);cur=t;toast('Первое кольцо · «'+name+'» в вашей роще');show('tree')}}}
+
+/* ---------- go ---------- */
+document.fonts.ready.then(()=>{const h=location.hash.slice(1);if(h=='book-rub'){bookTab='rub'}show(h.split('-')[0]||'grove')});
+addEventListener('resize',()=>{const s=$$('.screen').find(e=>e.classList.contains('on')).id.slice(2);show(s)});
+</script>
+</body>
+</html>

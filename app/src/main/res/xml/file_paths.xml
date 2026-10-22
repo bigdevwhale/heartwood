@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The phone's camera writes the tree's photos, leaves and bark here. -->
+<paths>
+    <files-path name="photos" path="photos/" />
+    <files-path name="leaves" path="leaves/" />
+    <files-path name="tmp" path="tmp/" />
+</paths>
