@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.heartwood.container
@@ -146,7 +147,10 @@ private fun TreeRow(h: Home, t: Tree, onClick: () -> Unit) {
     val last = h.lastMet[t.id]
     val f = h.friendship(t.id)
     Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        NativeCanvas(Modifier.size(52.dp, 60.dp)) { c, w, hh ->
+        val photo by app.heartwood.ui.components.rememberPhoto(if (t.asPhoto) t.photo else "", 300)
+        val p = photo
+        if (p != null) androidx.compose.foundation.Image(p.asImageBitmap(), null, Modifier.size(52.dp, 60.dp).clip(S.RSm), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+        else NativeCanvas(Modifier.size(52.dp, 60.dp)) { c, w, hh ->
             c.drawBitmap(TreeArt.bitmap(sp, h.today.monthValue, t.seed, w.toInt(), hh.toInt()), 0f, 0f, null)
         }
         Spacer(Modifier.width(12.dp))

@@ -76,6 +76,7 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
     val c = LocalContext.current.container
     var step by rememberSaveable { mutableIntStateOf(startStep) }
     var photo by rememberSaveable { mutableStateOf("") }
+    var asPhoto by rememberSaveable { mutableStateOf(false) }
     var species by rememberSaveable { mutableStateOf(preset?.name) }
     var closed by rememberSaveable { mutableStateOf<Boolean?>(if (startStep >= 2) false else null) }
     var girth by rememberSaveable { mutableIntStateOf(220) }
@@ -101,8 +102,10 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
         when (step) {
             0 -> {
                 val px = with(LocalDensity.current) { 340.dp.roundToPx() }
-                val engraved by produceState<android.graphics.Bitmap?>(null, photo) {
-                    value = if (photo.isEmpty()) null else withContext(Dispatchers.Default) { Photos.load(c.file(photo), 1000)?.let { Engrave.of(it, px, px * 4 / 3) } }
+                val engraved by produceState<android.graphics.Bitmap?>(null, photo, asPhoto) {
+                    value = if (photo.isEmpty()) null else withContext(Dispatchers.Default) {
+                        Photos.load(c.file(photo), 1000)?.let { if (asPhoto) it else Engrave.of(it, px, px * 4 / 3) }
+                    }
                 }
                 Box(Modifier.fillMaxWidth().aspectRatio(.8f).shadow(6.dp, S.RSm).clip(S.RSm).background(S.c.paper).clickable(onClick = camera.shoot), contentAlignment = Alignment.Center) {
                     val e = engraved
@@ -111,6 +114,10 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
                         if (photo.isEmpty()) (if (ru) "Нажмите, чтобы сфотографировать\n(откроется камера телефона)" else "Tap to take a photo\n(your phone's camera opens)") else "…",
                         style = SType.Hand.copy(fontSize = 24.sp, color = S.c.muted), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
+                }
+                if (photo.isNotEmpty()) {
+                    Gap(10)
+                    app.heartwood.ui.tree.PortraitLook(Tree(name = "", species = "", girth = 0, lat = 0.0, lon = 0.0, photo = photo, asPhoto = asPhoto), ru, camera.shoot) { asPhoto = it }
                 }
                 Gap(12)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -199,7 +206,7 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
                 InkButton(if (ru) "Подружиться" else "Become friends", {
                     val tree = Tree(
                         name = name.trim(), species = species ?: Species.OAK.name, girth = girth, lat = lat ?: 0.0, lon = lon ?: 0.0,
-                        photo = photo, why = why.trim(), seed = System.nanoTime() % 100_000,
+                        photo = photo, asPhoto = asPhoto && photo.isNotEmpty(), why = why.trim(), seed = System.nanoTime() % 100_000,
                     )
                     c.write {
                         val id = plant(tree, met = true)

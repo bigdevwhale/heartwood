@@ -1,6 +1,7 @@
 package app.heartwood.data
 
 import android.content.Context
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -12,6 +13,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
 /** What happened at the tree. Several can happen in one meeting; a meeting day is one ring. */
@@ -64,6 +67,8 @@ data class Tree(
     val createdAt: Long = System.currentTimeMillis(),
     val seed: Long = 0,
     val from: String = "",
+    /** The portrait is the photo itself rather than its engraving. */
+    @ColumnInfo(defaultValue = "0") val asPhoto: Boolean = false,
 )
 
 /**
@@ -133,12 +138,19 @@ interface GroveDao {
     }
 }
 
-@Database(entities = [Tree::class, Visit::class, Note::class], version = 1, exportSchema = true)
+@Database(entities = [Tree::class, Visit::class, Note::class], version = 2, exportSchema = true)
 abstract class GroveDatabase : RoomDatabase() {
     abstract fun dao(): GroveDao
 
     companion object {
         fun create(context: Context): GroveDatabase =
-            Room.databaseBuilder(context.applicationContext, GroveDatabase::class.java, "grove.db").build()
+            Room.databaseBuilder(context.applicationContext, GroveDatabase::class.java, "grove.db").addMigrations(PHOTO_PORTRAIT).build()
+
+        /** 2: a tree's portrait can be its photo. */
+        private val PHOTO_PORTRAIT = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE trees ADD COLUMN asPhoto INTEGER NOT NULL DEFAULT 0")
+            }
+        }
     }
 }

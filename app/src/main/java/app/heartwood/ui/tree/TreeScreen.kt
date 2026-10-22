@@ -5,6 +5,9 @@ import android.graphics.Bitmap
 import android.util.LruCache
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,15 +91,18 @@ private val engravings = LruCache<String, Bitmap>(8)
 fun Portrait(t: Tree, month: Int, modifier: Modifier) {
     val c = LocalContext.current.container
     val px = with(LocalDensity.current) { 300.dp.roundToPx() }
-    val engraved by produceState<Bitmap?>(null, t.photo) {
-        if (t.photo.isEmpty()) return@produceState
+    val engraved by produceState<Bitmap?>(null, t.photo, t.asPhoto) {
+        if (t.photo.isEmpty() || t.asPhoto) return@produceState
         value = engravings.get(t.photo) ?: withContext(Dispatchers.Default) {
             Photos.load(c.file(t.photo), 1000)?.let { Engrave.of(it, px, px * 7 / 6) }?.also { engravings.put(t.photo, it) }
         }
     }
+    val photo by app.heartwood.ui.components.rememberPhoto(if (t.asPhoto) t.photo else "", 900)
     Box(modifier) {
         val e = engraved
-        if (e != null) Image(e.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        val p = photo
+        if (t.asPhoto && p != null) Image(p.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        else if (e != null) Image(e.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         else NativeCanvas(Modifier.fillMaxSize()) { cv, w, h -> TreeArt.draw(cv, w, h, Species.of(t.species), month, t.seed) }
     }
 }
@@ -113,6 +119,9 @@ fun TreeScreen(id: Long, h: Home, go: Go) {
     var menu by remember { mutableStateOf(false) }
     var give by remember { mutableStateOf(false) }
     var forget by remember { mutableStateOf(false) }
+    val camera = app.heartwood.ui.components.rememberCamera("photos") { rel ->
+        if (rel != null) c.write { db.dao().update(t.copy(photo = rel)) }
+    }
     var picked by rememberSaveable(id, rings.size) { mutableStateOf(if (rings.isEmpty()) null else rings.size - 1) }
     val last = rings.lastOrNull()?.day
     val mossy = last != null && ChronoUnit.DAYS.between(last, h.today) > Rings.ABSENCE_DAYS
@@ -122,6 +131,7 @@ fun TreeScreen(id: Long, h: Home, go: Go) {
             IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreVert, null, tint = S.c.ink) }
             DropdownMenu(menu, { menu = false }) {
                 DropdownMenuItem({ Text(if (ru) "Передать другу" else "Pass it on to a friend") }, { menu = false; give = true })
+                DropdownMenuItem({ Text(if (t.photo.isEmpty()) (if (ru) "Сфотографировать дерево" else "Photograph the tree") else (if (ru) "Переснять портрет" else "Retake the portrait")) }, { menu = false; camera.shoot() })
                 DropdownMenuItem({ Text(if (ru) "Поправить точку на карте" else "Move its point on the map") }, { menu = false; go.move(id) })
                 DropdownMenuItem({ Text(if (ru) "Забыть это дерево" else "Forget this tree") }, { menu = false; forget = true })
             }
@@ -147,6 +157,8 @@ fun TreeScreen(id: Long, h: Home, go: Go) {
                 Bar(f.progress, Modifier.fillMaxWidth())
             }
         }
+        Gap(8)
+        PortraitLook(t, ru, onShoot = camera.shoot) { asPhoto -> c.write { db.dao().update(t.copy(asPhoto = asPhoto)) } }
         f.needs?.let { Text(it, style = SType.Typed.copy(fontSize = 11.5.sp), modifier = Modifier.padding(top = 6.dp)) }
         Gap(14)
         Sheet { Said(h.line(t), size = 24) }
@@ -309,4 +321,28 @@ private fun GiveDialog(t: Tree, ru: Boolean, onDone: () -> Unit) {
         },
         dismissButton = { TextButton(onClick = onDone) { Text(if (ru) "Готово" else "Done") } },
     )
+}
+
+/** Under the portrait: engraving or photo when there is a photo, a way to take one when there isn't. */
+@Composable
+fun PortraitLook(t: Tree, ru: Boolean, onShoot: () -> Unit, onPick: (Boolean) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (t.photo.isEmpty()) {
+            Text(
+                if (ru) "+ сфотографировать дерево" else "+ photograph the tree",
+                style = SType.Typed.copy(color = S.c.ink),
+                modifier = Modifier.clickable(onClick = onShoot).padding(vertical = 4.dp),
+            )
+        } else {
+            Text(if (ru) "Портрет: " else "Portrait: ", style = SType.Typed)
+            for ((photo, name) in listOf(false to (if (ru) "гравюра" else "engraving"), true to (if (ru) "фото" else "photo"))) {
+                val on = t.asPhoto == photo
+                Text(
+                    name, style = SType.Typed.copy(color = if (on) S.c.paper else S.c.ink),
+                    modifier = Modifier.padding(end = 6.dp).clip(S.RSm).border(1.dp, S.c.ink, S.RSm).background(if (on) S.c.ink else Color.Transparent)
+                        .clickable { onPick(photo) }.padding(horizontal = 8.dp, vertical = 3.dp),
+                )
+            }
+        }
+    }
 }
