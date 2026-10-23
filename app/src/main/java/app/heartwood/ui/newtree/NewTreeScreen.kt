@@ -78,6 +78,8 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
     var photo by rememberSaveable { mutableStateOf("") }
     var asPhoto by rememberSaveable { mutableStateOf(false) }
     var species by rememberSaveable { mutableStateOf(preset?.name) }
+    var kind by rememberSaveable { mutableStateOf("") }
+    var planting by rememberSaveable { mutableStateOf(false) }
     var closed by rememberSaveable { mutableStateOf<Boolean?>(if (startStep >= 2) false else null) }
     var girth by rememberSaveable { mutableIntStateOf(220) }
     var name by rememberSaveable { mutableStateOf("") }
@@ -142,6 +144,16 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
                     }
                     Gap(10)
                 }
+                Field(kind, { kind = it.take(30) }, if (ru) "Нет в списке? Впишите породу" else "Not in the key? Write its species", if (ru) "например, акация" else "e.g. acacia")
+                if (kind.isNotBlank()) {
+                    Gap(6)
+                    Text(
+                        if (ru) "И отметьте выше, на кого оно похоже: по нему нарисуем гравюру и прикинем возраст."
+                        else "And mark above which one it looks like: that one lends the engraving and the age.",
+                        style = SType.Typed,
+                    )
+                }
+                Gap(12)
                 InkButton(if (ru) "Дальше" else "Next", { step = 2 }, Modifier.fillMaxWidth(), enabled = species != null)
             }
             2 -> {
@@ -175,8 +187,9 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
                             size = 23,
                         )
                         Text(
-                            if (ru) "Возраст по формуле лесоводов: диаметр × коэффициент породы (${sp.title.ru.lowercase()} — ${sp.k}). Примерно, но честно."
-                            else "Age by the forester's rule: diameter × the species' growth factor (${sp.title.en.lowercase()}: ${sp.k}). Rough, but honest.",
+                            (if (ru) "Возраст по формуле лесоводов: диаметр × коэффициент породы (${sp.title.ru.lowercase()} — ${sp.k}). Примерно, но честно."
+                            else "Age by the forester's rule: diameter × the species' growth factor (${sp.title.en.lowercase()}: ${sp.k}). Rough, but honest.") +
+                                if (kind.isNotBlank()) (if (ru) " Коэффициент взят у похожего дерева." else " The factor is borrowed from the look-alike.") else "",
                             style = SType.Typed, modifier = Modifier.padding(top = 6.dp),
                         )
                     }
@@ -197,22 +210,33 @@ fun NewTreeScreen(h: Home, go: Go, startStep: Int = 0, preset: Species? = null) 
                 Gap(6)
                 Box(Modifier.fillMaxWidth().height(260.dp).shadow(6.dp, S.RSm).clip(S.RSm)) {
                     PickMap(
-                        fix?.let { GeoPoint(it.lat, it.lon) }, lat?.let { GeoPoint(it, lon ?: 0.0) }, h.trees, h.today.monthValue,
+                        where.hint?.let { GeoPoint(it.lat, it.lon) }, lat?.let { GeoPoint(it, lon ?: 0.0) }, h.trees, h.today.monthValue,
                         { lat = it.latitude; lon = it.longitude }, Modifier.fillMaxSize(),
                     )
                 }
-                if (!where.permitted) { Gap(8); LineButton(if (ru) "Определить, где я" else "Find where I am", where.ask, Modifier.fillMaxWidth()) }
+                if (!where.ready) {
+                    Gap(8)
+                    LineButton(
+                        if (!where.permitted) (if (ru) "Определить, где я" else "Find where I am") else (if (ru) "Включить геолокацию" else "Turn on location"),
+                        where.ask, Modifier.fillMaxWidth(),
+                    )
+                } else if (fix == null) {
+                    Gap(6)
+                    Text(if (ru) "Ищем вас… под открытым небом быстрее. Пока можно отметить дерево касанием." else "Finding you… quicker under open sky. Meanwhile, tap the tree's place on the map.", style = SType.Typed)
+                }
                 Gap(14)
                 InkButton(if (ru) "Подружиться" else "Become friends", {
+                    if (planting) return@InkButton
+                    planting = true
                     val tree = Tree(
                         name = name.trim(), species = species ?: Species.OAK.name, girth = girth, lat = lat ?: 0.0, lon = lon ?: 0.0,
-                        photo = photo, asPhoto = asPhoto && photo.isNotEmpty(), why = why.trim(), seed = System.nanoTime() % 100_000,
+                        photo = photo, asPhoto = asPhoto && photo.isNotEmpty(), why = why.trim(), kind = kind.trim(), seed = System.nanoTime() % 100_000,
                     )
                     c.write {
                         val id = plant(tree, met = true)
                         withContext(Dispatchers.Main) { go.planted(id) }
                     }
-                }, Modifier.fillMaxWidth(), enabled = name.isNotBlank() && lat != null, moss = true)
+                }, Modifier.fillMaxWidth(), enabled = name.isNotBlank() && lat != null && !planting, moss = true)
             }
         }
         Gap(24)

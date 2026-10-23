@@ -67,7 +67,7 @@ object CallWork {
         val r = context.localized()
         val call = Calls.pick(trees, firstMet, dao.notes(), snowAt, s.callLog, today, System.currentTimeMillis(), r.ru) ?: return
         val sp = Species.of(call.tree.species)
-        show(context, call.tree.id, "«${call.tree.name}» · ${sp.title(r.ru)}", call.text)
+        show(context, call.tree.id, "«${call.tree.name}» · ${sp.title(r.ru, call.tree.kind)}", call.text)
         c.settings.update {
             it.copy(lastCallAt = System.currentTimeMillis(), callLog = Calls.append(it.callLog, Calls.id(call.tree, call.key, Calls.year(call, today)), System.currentTimeMillis()))
         }

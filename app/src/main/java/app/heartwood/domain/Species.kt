@@ -251,6 +251,9 @@ enum class Species(
         listOf(w("he dropped his leaves all at once.", "он сбросил листья разом."), w("the world is still holding on, he says.", "мир всё ещё держится, говорит он."), w("he lets the light through and sends you some.", "он пропускает свет и передаёт тебе немного.")),
     );
 
+    /** The species' name, or the friend's own word for it when it isn't in the key. */
+    fun title(ru: Boolean, kind: String): String = kind.ifBlank { title(ru) }
+
     /** Age from the girth: the circumference to an inch diameter, times the growth factor. */
     fun age(girthCm: Int): Int = Math.round(girthCm / Math.PI / 2.54 * k).toInt()
 

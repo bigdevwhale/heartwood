@@ -1,5 +1,6 @@
 package app.heartwood.ui.components
 
+import android.os.SystemClock
 import android.view.View
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -96,12 +98,19 @@ fun Tape(modifier: Modifier = Modifier, width: Dp = 78.dp) {
 @Composable
 fun InkButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, icon: ImageVector? = null, moss: Boolean = false) {
     val bg = if (moss) S.c.moss else S.c.ink
+    // These buttons save and leave: a second tap while the screen is going would save twice.
+    val last = remember { longArrayOf(0) }
     Row(
         modifier
             .height(52.dp)
             .clip(S.RSm)
             .background(if (enabled) bg else S.c.line)
-            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .then(
+                if (enabled) Modifier.clickable {
+                    val now = SystemClock.uptimeMillis()
+                    if (now - last[0] > 700) { last[0] = now; onClick() }
+                } else Modifier,
+            )
             .padding(horizontal = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -160,7 +169,8 @@ fun Label(text: String, modifier: Modifier = Modifier) {
 /** A screen of kraft with a back arrow and a title, scrolling. */
 @Composable
 fun Page(title: String, onBack: (() -> Unit)?, modifier: Modifier = Modifier, actions: @Composable () -> Unit = {}, scroll: Boolean = true, content: @Composable ColumnScope.() -> Unit) {
-    Column(modifier.fillMaxSize().kraft().statusBarsPadding()) {
+    // Edge to edge the window no longer shrinks for the keyboard: the page does, so a focused field scrolls into view.
+    Column(modifier.fillMaxSize().kraft().statusBarsPadding().imePadding()) {
         Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 8.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, null, tint = S.c.ink) }
             else Spacer(Modifier.width(16.dp))

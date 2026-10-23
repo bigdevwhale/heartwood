@@ -5,7 +5,7 @@ import app.heartwood.data.Tree
 import java.util.Locale
 
 /** A tree passed on to a friend: everything but your rings, as a link a phone camera can read from a QR code. */
-data class TreeGift(val name: String, val species: Species, val girth: Int, val lat: Double, val lon: Double, val why: String, val from: String)
+data class TreeGift(val name: String, val species: Species, val girth: Int, val lat: Double, val lon: Double, val why: String, val from: String, val kind: String = "")
 
 object Gift {
     const val SCHEME = "heartwood"
@@ -16,6 +16,7 @@ object Gift {
         .appendQueryParameter("g", t.girth.toString())
         .appendQueryParameter("la", "%.6f".format(Locale.US, t.lat))
         .appendQueryParameter("lo", "%.6f".format(Locale.US, t.lon))
+        .apply { if (t.kind.isNotBlank()) appendQueryParameter("k", t.kind) }
         .apply { if (t.why.isNotBlank()) appendQueryParameter("w", t.why) }
         .apply { if (from.isNotBlank()) appendQueryParameter("f", from) }
         .build().toString()
@@ -29,6 +30,6 @@ object Gift {
         val lat = u.getQueryParameter("la")?.toDoubleOrNull()?.takeIf { it in -90.0..90.0 } ?: return null
         val lon = u.getQueryParameter("lo")?.toDoubleOrNull()?.takeIf { it in -180.0..180.0 } ?: return null
         val girth = u.getQueryParameter("g")?.toIntOrNull()?.coerceIn(10, 2000) ?: 100
-        return TreeGift(name, sp, girth, lat, lon, u.getQueryParameter("w").orEmpty().take(120), u.getQueryParameter("f").orEmpty().take(40))
+        return TreeGift(name, sp, girth, lat, lon, u.getQueryParameter("w").orEmpty().take(120), u.getQueryParameter("f").orEmpty().take(40), u.getQueryParameter("k").orEmpty().trim().take(30))
     }
 }

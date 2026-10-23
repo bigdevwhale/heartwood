@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -41,20 +42,31 @@ class Here(private val context: Context, private val onFix: (Fix) -> Unit) {
     fun permitted(): Boolean = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
+    /** Location switched on in the phone's settings: without it no provider ever answers. */
+    fun on(): Boolean = LocationManagerCompat.isLocationEnabled(lm)
+
+    /**
+     * Each provider on its own: with only approximate location allowed, GPS refuses with a
+     * SecurityException, and that must not keep the network and fused providers from being asked.
+     */
     @SuppressLint("MissingPermission")
     fun start() {
         if (!permitted()) return
-        try {
-            val providers = lm.getProviders(true)
-            if (LocationManager.GPS_PROVIDER in providers) lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, listener, Looper.getMainLooper())
-            if (LocationManager.NETWORK_PROVIDER in providers) lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000L, 0f, listener, Looper.getMainLooper())
-            providers.mapNotNull { lm.getLastKnownLocation(it) }
-                .filter { System.currentTimeMillis() - it.time < 5 * 60_000L }
-                .minByOrNull { it.accuracy }?.let { deliver(it) }
-        } catch (_: SecurityException) {
-        } catch (_: IllegalArgumentException) {
+        val providers = lm.getProviders(true)
+        // "fused" is LocationManager.FUSED_PROVIDER, named on API 31 but present earlier on many phones.
+        for ((p, every) in listOf(LocationManager.GPS_PROVIDER to 1000L, "fused" to 1000L, LocationManager.NETWORK_PROVIDER to 4000L)) {
+            if (p in providers) runCatching { lm.requestLocationUpdates(p, every, 0f, listener, Looper.getMainLooper()) }
         }
+        providers.mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
+            .filter { System.currentTimeMillis() - it.time < 5 * 60_000L }
+            .minByOrNull { it.accuracy }?.let { deliver(it) }
     }
+
+    /** The last place any provider knew, however old: enough to open the map on the right town. */
+    @SuppressLint("MissingPermission")
+    fun lastKnown(): Fix? = if (!permitted()) null else lm.getProviders(true)
+        .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
+        .maxByOrNull { it.time }?.let { Fix(it.latitude, it.longitude, if (it.hasAccuracy()) it.accuracy else 50f, it.time) }
 
     fun stop() = lm.removeUpdates(listener)
 

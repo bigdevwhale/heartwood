@@ -79,6 +79,7 @@ fun MeetScreen(id: Long, h: Home, go: Go) {
                         when {
                             forced -> if (ru) "У дерева (отладка)" else "At the tree (debug)"
                             !where.permitted -> if (ru) "Нужна геопозиция: встречаться можно только у самого дерева." else "Location is needed: you can only meet at the tree itself."
+                            !where.on -> if (ru) "Геолокация выключена в настройках телефона." else "Location is switched off in the phone's settings."
                             dist == null -> if (ru) "Ищу спутники…" else "Looking for satellites…"
                             near -> if (ru) "Вы у дерева · ${T.meters(dist, ru)}" else "You're at the tree · ${T.meters(dist, ru)}"
                             else -> if (ru) "До дерева ${T.meters(dist, ru)}. Дружба не переносится по воздуху." else "${T.meters(dist, ru)} to the tree. Friendship doesn't travel by air."
@@ -90,6 +91,7 @@ fun MeetScreen(id: Long, h: Home, go: Go) {
                 if (near) Stamp(if (ru) "рядом" else "here", color = S.c.moss)
             }
             if (!where.permitted) { Gap(10); InkButton(if (ru) "Разрешить геопозицию" else "Allow location", where.ask, Modifier.fillMaxWidth()) }
+            else if (!where.on && !forced) { Gap(10); InkButton(if (ru) "Включить геолокацию" else "Turn on location", where.ask, Modifier.fillMaxWidth()) }
             if (BuildConfig.DEBUG && !demo && !near) { Gap(8); LineButton("I'm here (debug)", { forced = true }, Modifier.fillMaxWidth()) }
         }
         if (near) {

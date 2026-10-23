@@ -1,6 +1,8 @@
 package app.heartwood.ui.components
 
 import android.Manifest
+import android.content.Intent
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -15,8 +17,14 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.heartwood.sense.Fix
 import app.heartwood.sense.Here
 
-/** The phone's position while the screen is open, and a way to ask for the permission. */
-class Whereabouts(val fix: Fix?, val permitted: Boolean, val ask: () -> Unit)
+/**
+ * The phone's position while the screen is open, and a way to ask for it: the permission, or
+ * location switched on. [hint] is the last place the phone knew, however old, to open a map on.
+ */
+class Whereabouts(val fix: Fix?, val permitted: Boolean, val on: Boolean, val hint: Fix?, val ask: () -> Unit) {
+    /** Permitted and switched on: a fix should come by itself. */
+    val ready get() = permitted && on
+}
 
 @Composable
 fun rememberWhereabouts(demo: Fix? = null): Whereabouts {
@@ -24,6 +32,8 @@ fun rememberWhereabouts(demo: Fix? = null): Whereabouts {
     var fix by remember { mutableStateOf(demo) }
     val here = remember { Here(context) { f -> if (fix == null || f.accuracy <= (fix?.accuracy ?: 999f) * 1.5f || f.at - (fix?.at ?: 0) > 15_000) fix = f } }
     var permitted by remember { mutableStateOf(here.permitted()) }
+    var on by remember { mutableStateOf(here.on()) }
+    var hint by remember { mutableStateOf(demo ?: here.lastKnown()) }
     var restart by remember { mutableIntStateOf(0) }
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         permitted = here.permitted()
@@ -31,9 +41,14 @@ fun rememberWhereabouts(demo: Fix? = null): Whereabouts {
     }
     LifecycleResumeEffect(restart) {
         permitted = here.permitted()
+        on = here.on()
+        if (hint == null) hint = here.lastKnown()
         if (demo == null && !Art.still) here.start()
         onPauseOrDispose { here.stop() }
     }
     LaunchedEffect(demo) { if (demo != null) fix = demo }
-    return Whereabouts(fix, permitted || demo != null) { ask.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) }
+    return Whereabouts(fix, permitted || demo != null, on || demo != null, fix ?: hint) {
+        if (!permitted) ask.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        else runCatching { context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
+    }
 }

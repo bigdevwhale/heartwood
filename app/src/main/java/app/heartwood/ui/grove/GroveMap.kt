@@ -297,6 +297,7 @@ fun PickMap(center: GeoPoint?, marker: GeoPoint?, others: List<Tree>, month: Int
     }
     val pin = remember { arrayOf<GeoPoint?>(null) }
     pin[0] = marker
+    val shown = remember { arrayOf<GeoPoint?>(null) }
     val mapView = rememberMapView { mv ->
         mv.overlays.add(OsmGrove(layer) {})
         mv.overlays.add(object : Overlay() {
@@ -312,14 +313,21 @@ fun PickMap(center: GeoPoint?, marker: GeoPoint?, others: List<Tree>, month: Int
             }
         })
         mv.overlays.add(MapEventsOverlay(object : MapEventsReceiver {
-            override fun singleTapConfirmedHelper(p: GeoPoint): Boolean { onPick(p); return true }
+            override fun singleTapConfirmedHelper(p: GeoPoint): Boolean { shown[0] = p; onPick(p); return true }
             override fun longPressHelper(p: GeoPoint): Boolean = false
         }))
         mv.controller.setZoom(18.0)
-        (marker ?: center)?.let { mv.controller.setCenter(it) }
     }
-    LaunchedEffect(center) {
-        if (marker == null && center != null) mapView.controller.animateTo(center)
+    // Show the pin (else where the phone is, else the grove) whenever it moves by itself; a tap moves it where the eye already is.
+    LaunchedEffect(marker, center) {
+        val to = marker ?: center
+        if (to != null && to != shown[0]) {
+            if (shown[0] == null) mapView.controller.setCenter(to) else mapView.controller.animateTo(to)
+            shown[0] = to
+        } else if (to == null && others.isNotEmpty()) {
+            bounds(others)?.let { mapView.controller.setCenter(it.centerWithDateLine) }
+            mapView.controller.setZoom(15.0)
+        } else if (to == null) mapView.controller.setZoom(4.0)
     }
     LaunchedEffect(marker) { mapView.invalidate() }
     AndroidView({ mapView }, modifier)

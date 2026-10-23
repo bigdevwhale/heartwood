@@ -41,7 +41,10 @@ fun MoveScreen(id: Long, h: Home, go: Go) {
         }
         Gap(10)
         where.fix?.let { f -> LineButton(if (ru) "Я сейчас у дерева — поставить сюда" else "I'm at the tree now — put it here", { mark = GeoPoint(f.lat, f.lon) }, Modifier.fillMaxWidth()) }
-            ?: LineButton(if (ru) "Определить, где я" else "Find where I am", where.ask, Modifier.fillMaxWidth(), enabled = !where.permitted)
+            ?: LineButton(
+                if (where.permitted && !where.on) (if (ru) "Включить геолокацию" else "Turn on location") else (if (ru) "Определить, где я" else "Find where I am"),
+                where.ask, Modifier.fillMaxWidth(), enabled = !where.ready,
+            )
         Gap(8)
         InkButton(if (ru) "Сохранить точку" else "Save the point", {
             c.write { db.dao().update(t.copy(lat = mark.latitude, lon = mark.longitude)) }

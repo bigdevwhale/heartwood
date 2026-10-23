@@ -16,6 +16,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
@@ -57,6 +58,7 @@ fun SitScreen(id: Long, h: Home, go: Go) {
     val face = remember { FaceDown(context) }
     var sat by remember { mutableLongStateOf(if (Art.still) 754_000L else 0L) }
     var frame by remember { mutableLongStateOf(0L) }
+    var up by remember { mutableStateOf(false) }
     KeepScreenOn()
     DisposableEffect(Unit) {
         face.start()
@@ -102,7 +104,8 @@ fun SitScreen(id: Long, h: Home, go: Go) {
                 if (secs < 60) {
                     Toast.makeText(context, if (ru) "Так быстро? Посидите хотя бы минуту." else "So soon? Sit at least a minute.", Toast.LENGTH_SHORT).show()
                     if (secs < 5) go.back()
-                } else {
+                } else if (!up) {
+                    up = true
                     c.write { record(t, Kind.SIT, seconds = secs) }
                     go.back()
                 }

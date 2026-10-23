@@ -69,6 +69,8 @@ data class Tree(
     val from: String = "",
     /** The portrait is the photo itself rather than its engraving. */
     @ColumnInfo(defaultValue = "0") val asPhoto: Boolean = false,
+    /** The species in the friend's own words, when it isn't in the key; [species] is then the one it looks like. */
+    @ColumnInfo(defaultValue = "") val kind: String = "",
 )
 
 /**
@@ -138,18 +140,25 @@ interface GroveDao {
     }
 }
 
-@Database(entities = [Tree::class, Visit::class, Note::class], version = 2, exportSchema = true)
+@Database(entities = [Tree::class, Visit::class, Note::class], version = 3, exportSchema = true)
 abstract class GroveDatabase : RoomDatabase() {
     abstract fun dao(): GroveDao
 
     companion object {
         fun create(context: Context): GroveDatabase =
-            Room.databaseBuilder(context.applicationContext, GroveDatabase::class.java, "grove.db").addMigrations(PHOTO_PORTRAIT).build()
+            Room.databaseBuilder(context.applicationContext, GroveDatabase::class.java, "grove.db").addMigrations(PHOTO_PORTRAIT, OWN_KIND).build()
 
         /** 2: a tree's portrait can be its photo. */
         private val PHOTO_PORTRAIT = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE trees ADD COLUMN asPhoto INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        /** 3: a species not in the key, in the friend's own words. */
+        private val OWN_KIND = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE trees ADD COLUMN kind TEXT NOT NULL DEFAULT ''")
             }
         }
     }

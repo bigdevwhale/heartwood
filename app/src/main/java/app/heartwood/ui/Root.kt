@@ -82,6 +82,9 @@ class Home(
     fun rings(id: Long): List<Ring> = ringCache.getOrPut(id) { Rings.of(visits(id)) }
     fun species(t: Tree) = Species.of(t.species)
 
+    /** What the tree is called as a species: its key entry, or the friend's own word. */
+    fun kind(t: Tree, ru: Boolean = this.ru) = species(t).title(ru, t.kind)
+
     val lastMet: Map<Long, LocalDate> = trees.mapNotNull { t -> rings(t.id).lastOrNull()?.let { t.id to it.day } }.toMap()
     val firstMet: Map<Long, LocalDate> = trees.mapNotNull { t -> rings(t.id).firstOrNull()?.let { t.id to it.day } }.toMap()
 
@@ -166,15 +169,17 @@ fun HeartwoodRoot(settings: Settings) {
             title = { Text(if (ru) "Дерево в подарок" else "A tree, passed on") },
             text = {
                 Text(
-                    if (ru) "${g.species.title.ru} «${g.name}», обхват ${g.girth} см${if (g.from.isNotBlank()) " — от ${g.from}" else ""}. Принять в рощу? Кольца у вас будут свои: первое — когда встретитесь."
-                    else "${g.species.title.en} “${g.name}”, girth ${g.girth} cm${if (g.from.isNotBlank()) ", from ${g.from}" else ""}. Take it into your grove? Your rings will be your own: the first when you meet.",
+                    if (ru) "${g.species.title(true, g.kind)} «${g.name}», обхват ${g.girth} см${if (g.from.isNotBlank()) " — от ${g.from}" else ""}. Принять в рощу? Кольца у вас будут свои: первое — когда встретитесь."
+                    else "${g.species.title(false, g.kind)} “${g.name}”, girth ${g.girth} cm${if (g.from.isNotBlank()) ", from ${g.from}" else ""}. Take it into your grove? Your rings will be your own: the first when you meet.",
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
+                    // A second tap lands before the dialog is gone: only the tap that clears the gift plants it.
+                    if (container.gift.value !== g) return@TextButton
                     container.gift.value = null
                     container.write {
-                        val id = plant(Tree(name = g.name, species = g.species.name, girth = g.girth, lat = g.lat, lon = g.lon, why = g.why, from = g.from, seed = System.nanoTime() % 100_000), met = false)
+                        val id = plant(Tree(name = g.name, species = g.species.name, girth = g.girth, lat = g.lat, lon = g.lon, why = g.why, from = g.from, kind = g.kind, seed = System.nanoTime() % 100_000), met = false)
                         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { if (settings.onboarded) go.tree(id) }
                     }
                 }) { Text(if (ru) "Принять" else "Take it") }

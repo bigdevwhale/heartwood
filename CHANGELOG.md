@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0] - 2026-10-23
+
+- A tree not in the key: write its species in your own words and mark the one it looks like, which lends the engraving and the age. The name travels with a tree passed on to a friend.
+- Location when meeting a tree: works with approximate location only, asks to switch location on when it's off, and the map opens where you are instead of in the ocean.
+- A double tap no longer plants the same tree twice or saves a meeting twice.
+- The keyboard no longer hides the field you're typing in.
+
 ## [1.0.0] - 2026-10-22
 
 The first release.

@@ -148,7 +148,8 @@ fun TreeScreen(id: Long, h: Home, go: Go) {
                 Text("«${t.name}»", style = SType.Display)
                 val age = sp.age(t.girth)
                 Text(
-                    "${sp.title(ru).uppercase()} · ${sp.character(ru)}\n" +
+                    // A species in the friend's own words borrows only the look of the one it resembles, not its character.
+                    h.kind(t).uppercase() + (if (t.kind.isBlank()) " · ${sp.character(ru)}" else "") + "\n" +
                         (if (ru) "обхват ${t.girth} см · ~${T.years(age, ru)}" else "girth ${t.girth} cm · ~${T.years(age, ru)}") +
                         (h.firstMet[id]?.let { "\n" + (if (ru) "дружим с " else "friends since ") + T.date(it, ru, h.today) } ?: ""),
                     style = SType.Typed,
@@ -314,7 +315,7 @@ private fun GiveDialog(t: Tree, ru: Boolean, onDone: () -> Unit) {
         },
         confirmButton = {
             TextButton(onClick = {
-                val text = (if (ru) "Дружи с этим деревом: ${Species.of(t.species).title.ru} «${t.name}». Открой в Heartwood: " else "Befriend this tree: ${Species.of(t.species).title.en} “${t.name}”. Open in Heartwood: ") + link
+                val text = (if (ru) "Дружи с этим деревом: ${Species.of(t.species).title(true, t.kind)} «${t.name}». Открой в Heartwood: " else "Befriend this tree: ${Species.of(t.species).title(false, t.kind)} “${t.name}”. Open in Heartwood: ") + link
                 context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
                 onDone()
             }) { Text(if (ru) "Отправить ссылкой" else "Send as a link") }

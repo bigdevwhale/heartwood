@@ -119,7 +119,7 @@ fun GroveScreen(h: Home, go: Go) {
                         Column {
                             Label(if (ru) "Зов" else "A call")
                             Said(call.text, size = 23)
-                            Text("— «${call.tree.name}», ${h.species(call.tree).title(ru).lowercase()}", style = SType.Muted)
+                            Text("— «${call.tree.name}», ${h.kind(call.tree).lowercase()}", style = SType.Muted)
                         }
                     }
                 }
@@ -157,7 +157,7 @@ private fun TreeRow(h: Home, t: Tree, onClick: () -> Unit) {
         Column(Modifier.weight(1f)) {
             Text(t.name, style = SType.Title.copy(fontSize = 17.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
-                listOf(sp.title(ru), f.level.title(ru).lowercase(), last?.let { T.ago(it, ru, h.today) } ?: (if (ru) "ещё не встречались" else "not met yet")).joinToString(" · "),
+                listOf(h.kind(t), f.level.title(ru).lowercase(), last?.let { T.ago(it, ru, h.today) } ?: (if (ru) "ещё не встречались" else "not met yet")).joinToString(" · "),
                 style = SType.Muted.copy(fontSize = 13.sp),
             )
             if (last != null && ChronoUnit.DAYS.between(last, h.today) > Rings.ABSENCE_DAYS) {
