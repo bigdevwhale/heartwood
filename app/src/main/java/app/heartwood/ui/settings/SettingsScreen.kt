@@ -28,6 +28,7 @@ import app.heartwood.container
 import app.heartwood.ui.Go
 import app.heartwood.ui.Home
 import app.heartwood.ui.Language
+import app.heartwood.ui.components.CommunityLinks
 import app.heartwood.ui.components.Gap
 import app.heartwood.ui.components.Label
 import app.heartwood.ui.components.LineButton
@@ -80,6 +81,10 @@ fun SettingsScreen(h: Home, go: Go) {
         }
         Gap(14)
         LineButton(if (ru) "Как это устроено" else "How it works", go::guide, Modifier.fillMaxWidth())
+        Gap(18)
+        Label(if (ru) "Сообщество" else "Community")
+        Gap(6)
+        CommunityLinks(ru)
         Gap(18)
         Label(if (ru) "О приложении" else "About")
         Gap(6)
