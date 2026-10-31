@@ -71,7 +71,7 @@ python tools/play.py   # tree, grove, meet, hug, key, chronicle, herbarium, holl
 | Поле | Значение |
 |---|---|
 | App category | App → **Lifestyle** |
-| Tags (до 5) | Nature, Outdoors, Journal, Walking, Plants (берите ближайшие из списка Play) |
+| Tags (до 5) | **Lifestyle**, **Self-help**, **Notebook**, **Science education**, **Meditation** |
 | Email address | *ваш публичный email* — обязательно, его увидят все |
 | Website | `https://bigdevwhale.github.io/stillcraft/apps/heartwood/` |
 | Phone | пусто |
@@ -80,6 +80,11 @@ python tools/play.py   # tree, grove, meet, hug, key, chronicle, herbarium, holl
 **Категория.** Это ритуал прогулок к дереву и дневник дружбы с ним — ближе всего Lifestyle.
 Альтернатива — **Education** (определитель пород, гербарий), но там сильнее спрос на соответствие
 политике Families, см. «Target audience».
+
+**Теги.** Lifestyle — сама категория; Self-help — ритуал возвращаться и не винить себя (мох вместо укоров);
+Notebook — тетрадь лесника, записки в дупле; Science education — определитель пород и возраст по формуле
+лесоводов; Meditation — «посидеть рядом», минута объятия. Природы/прогулок среди тегов Play нет.
+Если хочется про движение — замените Meditation на Activity tracker.
 
 ## 4. App content (Policy → App content)
 
