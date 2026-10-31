@@ -9,6 +9,7 @@
 *Pick a real tree — by your house, your school, in the park. Photograph it, work out what it is, hug it and mark it on the map. Then keep coming back: the friendship grows only from meetings at the tree itself, and over a year they build up into a sawn cross-section of rings. Free, no ads, no account.*
 
 [![Android CI](https://github.com/bigdevwhale/heartwood/actions/workflows/android.yml/badge.svg)](https://github.com/bigdevwhale/heartwood/actions/workflows/android.yml)
+[![Google Play](https://img.shields.io/badge/Google_Play-get_it-34A853?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=app.heartwood)
 [![Release](https://img.shields.io/github/v/release/bigdevwhale/heartwood?color=55703A&label=download&logo=android)](https://github.com/bigdevwhale/heartwood/releases/latest)
 ![Android 9+](https://img.shields.io/badge/Android-9%2B-3C9D50?logo=android&logoColor=white)
 ![Languages](https://img.shields.io/badge/lang-EN%20%7C%20RU-6C77B6)
@@ -43,6 +44,12 @@ A tree is the most patient friend there is: it stays exactly where you left it, 
 6. **Calls, rarely.** A tree calls when it has a reason: the linden is in blossom, the maple is all red, the first snow, a year since you met, a note ripe in the hollow. Twice a month at most, never at night.
 7. **No guilt.** A tree doesn't wilt if you vanish. Moss grows on its card, and when you come back it says "I knew you'd come."
 8. **Pass a tree on.** A QR code a friend reads with their phone camera: the tree becomes theirs too, with their own rings.
+
+## Download
+
+**[Get it on Google Play](https://play.google.com/store/apps/details?id=app.heartwood)**.
+
+Or get **Heartwood.apk** from the [latest release](https://github.com/bigdevwhale/heartwood/releases/latest) and open it on your phone (allow installing from your browser or file manager when asked). Android 9 or newer.
 
 ## Privacy
 

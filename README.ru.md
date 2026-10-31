@@ -8,6 +8,8 @@
 
 *Выберите настоящее дерево — у дома, у школы, в парке. Сфотографируйте его, определите породу, обнимите и отметьте на карте. А потом приходите: дружба растёт только от встреч у самого дерева, и за год они складываются в спил с годовыми кольцами. Бесплатно, без рекламы и аккаунтов.*
 
+[![Google Play](https://img.shields.io/badge/Google_Play-скачать-34A853?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=app.heartwood)
+
 [English](README.md) · **Русский** · [Изменения](CHANGELOG.md)
 
 <img src="docs/screenshots/ru/1-grove.jpg" width="200" /> <img src="docs/screenshots/ru/2-tree.jpg" width="200" /> <img src="docs/screenshots/ru/3-meet.jpg" width="200" /> <img src="docs/screenshots/ru/5-herbarium.jpg" width="200" /> <img src="docs/screenshots/ru/6-chronicle.jpg" width="200" />
@@ -37,6 +39,12 @@
 6. **Зов — изредка.** Дерево зовёт, только когда есть повод: липа зацвела, клён весь красный, первый снег, год знакомства, созрела записка в дупле. Не чаще двух раз в месяц и никогда ночью.
 7. **Без укоров.** Если пропасть, дерево не засохнет: на карточке просто нарастёт мох, а при встрече оно скажет «Я знал, что придёшь».
 8. **Передать дерево.** QR-код, который друг считывает обычной камерой телефона: дерево становится и его, с его собственными кольцами.
+
+## Скачать
+
+**[Скачать в Google Play](https://play.google.com/store/apps/details?id=app.heartwood)**.
+
+Или возьмите **Heartwood.apk** в [последнем релизе](https://github.com/bigdevwhale/heartwood/releases/latest) и откройте на телефоне (разрешите установку из браузера или файлового менеджера, когда Android спросит). Android 9 и новее.
 
 ## Приватность
 
