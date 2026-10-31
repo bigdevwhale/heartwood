@@ -1,0 +1,43 @@
+A tree is the most patient friend there is: it stays exactly where you left it, for a hundred years. Heartwood makes a friendship out of that.
+
+Pick a real tree: by your house, on your street, in the park. Photograph it, work out what it is, hug it and mark it on the map. Then keep coming back. Nothing in the app moves the friendship forward except walking up to the tree, and over a year the meetings build up into a sawn cross-section of rings. Free, no ads, no account.
+
+🌳 MEETING A TREE
+• The photo of the whole tree becomes an ink engraving, its portrait
+• Work out the species with an illustrated key (leaf, bark, needles), like an old field guide: twelve species, from oak and birch to rowan and poplar
+• Hug the trunk: did your hands meet? The girth and the forester's rule tell you roughly how old it is: "about 190 years, seven generations of people"
+• A name, one line on why this one, and a point on the map
+
+🪵 THE FRIENDSHIP, SAWN THROUGH
+• Every day you meet is a ring; the pith is the day you met
+• A ring takes the season's colour, a hug warms the wood, a long absence leaves a dark line, like a dry year
+• Tap a ring and the tree remembers that day and its weather in its own voice: "It was snowing. One line of footprints led to my trunk."
+
+📍 ONLY AT THE TREE (within 50 metres)
+• Hug: the phone against your chest, your chest against the trunk. A heartbeat in your hand slows from yours toward the tree's
+• Listen: ten seconds of the bark's voice, to play back in winter
+• Bark rubbing: photograph the bark, then rub it out of blank paper with a finger, like graphite
+• A leaf to press: one fallen leaf a season goes into the herbarium
+• A photo over the last: fit each photo over a ghost of the previous one, and the chronicle becomes a timelapse of the tree through the years
+• Sit beside it: the phone face down, a clock that only runs while it lies still. Nothing else happens
+• The hollow: a note to yourself that opens a year later, only at this tree
+
+🍄 THE GROVE
+• Up to seven trees on an old-survey-style map
+• Switch to underground and the mycelium shows between them, with news running along the threads from the friend you met last
+• Stranger, acquaintance, pal, friend, kindred: by meetings, by seasons, and kindred only after a full year
+
+✉️ CALLS, RARELY
+• A tree calls only when it has a reason: the linden is in blossom, the maple is all red, the first snow, a year since you met, a note ripe in the hollow
+• Twice a month at most, never at night
+
+🌿 NO GUILT
+• A tree doesn't wilt if you vanish. Moss grows on its card, and when you come back it says "I knew you'd come"
+• Pass a tree on: a QR code a friend reads with their phone camera, and the tree becomes theirs too, with their own rings
+
+ALSO
+• The forester's notebook: herbarium, rubbings, voices and hollows
+• English and Russian
+• Free and open source (MIT)
+
+Privacy: no account, no ads, no analytics. Everything stays on your phone. The only network requests are OpenStreetMap map tiles and the current weather at the tree's rounded coordinates, so a ring can remember the rain.
